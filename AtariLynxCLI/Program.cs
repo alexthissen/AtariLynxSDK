@@ -14,6 +14,7 @@ namespace KillerApps.AtariLynx.CommandLine
             rootCommand.AddCommand(new ComLynxCommand());
             rootCommand.AddCommand(new BllCommand());
             rootCommand.AddCommand(new ResetCommand());
+            rootCommand.AddCommand(new BllScreenshotCommand());
 
             return await rootCommand.InvokeAsync(args);
         }
