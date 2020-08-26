@@ -7,32 +7,32 @@ using System.Text;
 namespace KillerApps.AtariLynx.Tooling.Tests
 {
     [TestClass]
-    public class WriteMemoryCommandTest
+    public class WriteMemoryMessageTest
     {
         [TestMethod]
-        public void CreateSingleByteCommand()
+        public void CreateWriteSingleByteMessage()
         {
             byte data = 0x42;
             ushort address = 0x1234;
-            WriteMemoryDebugCommand command = new WriteMemoryDebugCommand(address, data);
-            byte[] commandInBytes = command.ToBytes();
+            WriteMemoryDebugMessage message = new WriteMemoryDebugMessage(address, data);
+            byte[] messageInBytes = message.ToBytes();
 
             CollectionAssert.AreEqual(
                 new byte[] { (byte)DebugCommandBytes.WriteMemory, 0x12, 0x34, 0x01, data },
-                commandInBytes);
+                messageInBytes);
         }
 
         [TestMethod]
-        public void CreateWordCommand()
+        public void CreateWriteWordMessage()
         {
             ushort data = 0x4243;
             ushort address = 0x1234;
-            WriteMemoryDebugCommand command = new WriteMemoryDebugCommand(address, data);
-            byte[] commandInBytes = command.ToBytes();
+            WriteMemoryDebugMessage message = new WriteMemoryDebugMessage(address, data);
+            byte[] messageInBytes = message.ToBytes();
 
             CollectionAssert.AreEqual(
                 new byte[] { (byte)DebugCommandBytes.WriteMemory, 0x12, 0x34, 0x02, 0x42, 0x43 },
-                commandInBytes);
+                messageInBytes);
         }
     }
 }

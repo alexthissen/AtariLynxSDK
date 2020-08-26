@@ -14,6 +14,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
     public class ComLynxUploader
     {
 		private const int WRITE_TIMEOUT = 5000;
+		private const int WRITE_CHUNKSIZE = 64;
 		private const int BUFFER_SIZE = 256;
 		private const int RECEIVED_BYTES_THRESHOLD = 256;
 		private const int READ_TIMEOUT = 5000;
@@ -40,7 +41,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
 		public void Reset(string comPort, int baudRate = 62500)
 		{
-			ResetDebugCommand command = new ResetDebugCommand();
+			ResetDebugMessage message = new ResetDebugMessage();
 
 			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
 			{
@@ -49,7 +50,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				port.Open();
 
 				// Write command 
-				byte[] commandBytes = command.ToBytes();
+				byte[] commandBytes = message.ToBytes();
 				port.Write(commandBytes, 0, commandBytes.Length);
 
 				if (port.IsOpen) port.Close();
@@ -58,10 +59,10 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
 		public byte[] Screenshot(string comPort, int baudRate = 62500)
 		{
-			ScreenshotDebugCommand command = new ScreenshotDebugCommand();
-			byte[] commandBytes = command.ToBytes();
+			ScreenshotDebugMessage message = new ScreenshotDebugMessage();
+			byte[] messageBytes = message.ToBytes();
 
-			data = new byte[SCREENSHOT_SIZE + PALETTE_SIZE + commandBytes.Length];
+			data = new byte[SCREENSHOT_SIZE + PALETTE_SIZE + messageBytes.Length];
 
 			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
 			{
@@ -72,8 +73,8 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
 				port.Open();
 
-				// Write command 
-				port.Write(commandBytes, 0, commandBytes.Length);
+				// Write message to  
+				port.Write(messageBytes, 0, messageBytes.Length);
 
 				// Now Lynx should send back palette of 32 bytes and video memory 
 				while (totalBytes < data.Length) // or timeout
@@ -100,26 +101,27 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
 		protected void UploadCore(string comPort, ComFileHeader header, byte[] program, int offset, int count, int baudRate)
         {
-			UploadDebugCommand command = new UploadDebugCommand(header.LoadAddress, header.ObjectSize);
+			UploadDebugMessage message = new UploadDebugMessage(header.LoadAddress, header.ObjectSize);
 
 			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
 			{
-				//port.WriteTimeout = WRITE_TIMEOUT;
+				port.WriteTimeout = WRITE_TIMEOUT;
 				port.Handshake = Handshake.None;
 				port.Open();
 				
 				// Write command 
-				byte[] commandBytes = command.ToBytes();
-				port.Write(commandBytes, 0, commandBytes.Length);
-
-				// port.Write(program, offset, header.ObjectSize);
+				byte[] messageBytes = message.ToBytes();
+				port.Write(messageBytes, 0, messageBytes.Length);
 
 				int bytesSent = 0;
 				while (bytesSent < header.ObjectSize)
 				{
-					int chunkSize = Math.Min(header.ObjectSize - bytesSent, 64);
+					// Send single chunk
+					int chunkSize = Math.Min(header.ObjectSize - bytesSent, WRITE_CHUNKSIZE);
 					port.Write(program, offset + bytesSent, chunkSize);
 					bytesSent += chunkSize;
+
+					// Report progress
 					int percentage = (bytesSent * 100) / header.ObjectSize;
 					ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, chunkSize));
 				}

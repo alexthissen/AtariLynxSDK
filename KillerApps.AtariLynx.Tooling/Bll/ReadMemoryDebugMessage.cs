@@ -2,12 +2,12 @@
 
 namespace KillerApps.AtariLynx.Tooling.Bll
 {
-    public class ReadMemoryDebugCommand : IBllDebugCommand
+    public class ReadMemoryDebugMessage : IBllDebugMessage
     {
         public byte ByteLength { get; private set; }
         public ushort Address { get; private set; }
 
-        public ReadMemoryDebugCommand(ushort address, byte length) 
+        public ReadMemoryDebugMessage(ushort address, byte length) 
         { 
             if (length == 0) throw new ArgumentException("Data length cannot be zero");
             ByteLength = length;

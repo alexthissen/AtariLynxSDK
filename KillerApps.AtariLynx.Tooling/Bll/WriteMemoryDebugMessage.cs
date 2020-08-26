@@ -2,7 +2,7 @@
 
 namespace KillerApps.AtariLynx.Tooling.Bll
 {
-    public class WriteMemoryDebugCommand : IBllDebugCommand
+    public class WriteMemoryDebugMessage : IBllDebugMessage
     {
         public byte ByteLength { get; private set; }
         public byte[] Data { get; private set; }
@@ -14,14 +14,14 @@ namespace KillerApps.AtariLynx.Tooling.Bll
             Data = new byte[ByteLength];
         }
 
-        public WriteMemoryDebugCommand(ushort address, byte data) : 
+        public WriteMemoryDebugMessage(ushort address, byte data) : 
             this(address, new byte[] { data }, 0, 1) { }
 
-        public WriteMemoryDebugCommand(ushort address, ushort data) :
+        public WriteMemoryDebugMessage(ushort address, ushort data) :
             this(address, new byte[] { (byte)(data >> 0x8), (byte)(data & 0xff) }, 0, 2)
         { }
 
-        public WriteMemoryDebugCommand(ushort address, byte[] data, int offset, int length) 
+        public WriteMemoryDebugMessage(ushort address, byte[] data, int offset, int length) 
         {
             if (length == 0) length = data.Length - offset;
             if (length > 0xff)

@@ -2,7 +2,7 @@
 
 namespace KillerApps.AtariLynx.Tooling.Bll
 {
-	public class ScreenshotDebugCommand : IBllDebugCommand
+	public class ScreenshotDebugMessage : IBllDebugMessage
 	{
 		public byte[] ToBytes()
 		{

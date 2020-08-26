@@ -1,11 +1,11 @@
 ﻿namespace KillerApps.AtariLynx.Tooling.Bll
 {
-    public class SetRegistersDebugCommand : IBllDebugCommand
+    public class SetRegistersDebugMessage : IBllDebugMessage
     {
         private byte[] bytes;
 
         // dc.w BRKSetRegisters	; $83,A,X,Y,S,P,PC
-        public SetRegistersDebugCommand(byte A, byte X, byte Y, byte S, byte P, ushort PC)
+        public SetRegistersDebugMessage(byte A, byte X, byte Y, byte S, byte P, ushort PC)
         {
             // "*set processor registers"
             // "*bytes are send : PC - high,PC - low,S,P,Y,X,A"

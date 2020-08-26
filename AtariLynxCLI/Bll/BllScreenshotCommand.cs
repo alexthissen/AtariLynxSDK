@@ -1,5 +1,6 @@
 ﻿using KillerApps.AtariLynx.Tooling.ComLynx;
 using KillerApps.AtariLynx.Tooling.Conversion;
+using Kurukuru;
 using ShellProgressBar;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace KillerApps.AtariLynx.CommandLine.Bll
 {
@@ -37,14 +39,19 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
             ComLynxUploader uploader = new ComLynxUploader();
             uploader.ProgressChanged += OnProgressChanged;
             string comPortName = String.Format("COM{0}", comPort);
+            byte[] screenshotData;
+
             using (progressBar = new ProgressBar(100, "Initializing"))
             {
-                byte[] screenshotData = uploader.Screenshot(comPortName, baudRate);
+                screenshotData = uploader.Screenshot(comPortName, baudRate);
+            }
 
+            Spinner.Start("Converting image...", spinner => {
                 BitmapConverter conv = new BitmapConverter();
                 Bitmap bitmap = conv.ConvertToBitmap(screenshotData);
                 bitmap.Save(output.FullName);
-            }
+                spinner.Succeed("Converting image... Done");
+            });
         }
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)

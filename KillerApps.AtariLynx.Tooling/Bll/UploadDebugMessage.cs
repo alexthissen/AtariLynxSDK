@@ -2,8 +2,17 @@
 
 namespace KillerApps.AtariLynx.Tooling.Bll
 {
-    public class ResetDebugCommand : IBllDebugCommand
+    public class UploadDebugMessage : IBllDebugMessage
     {
+        public ushort LoadAddress { get; private set; }
+        public ushort Length { get; private set; }
+
+        public UploadDebugMessage(ushort loadAddress, ushort length)
+        {
+            this.LoadAddress = loadAddress;
+            this.Length = length;
+        }
+
         public byte[] ToBytes()
         {
             /*
@@ -16,9 +25,12 @@ namespace KillerApps.AtariLynx.Tooling.Bll
              *  checksum : none at all !! 
             */
 
-            byte[] bytes = new byte[2] { 
+            byte[] bytes = new byte[6] { 
                 (byte)DebugCommandBytes.Header, 
-                (byte)'R'
+                (byte)'P',
+                (byte)(LoadAddress >> 8), (byte)(LoadAddress & 0xff), // First HI, then LO seems to work
+                (byte)((Length >> 8) ^ 0xff),
+                (byte)((Length & 0xff) ^ 0xff)
             };
             return bytes;
         }

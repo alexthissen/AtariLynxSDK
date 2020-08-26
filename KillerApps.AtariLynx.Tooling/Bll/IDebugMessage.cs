@@ -1,6 +1,6 @@
 ﻿namespace KillerApps.AtariLynx.Tooling.Bll
 {
-    public interface IBllDebugCommand
+    public interface IBllDebugMessage
     {
         byte[] ToBytes();
     }
