@@ -1,19 +1,20 @@
-﻿using ShellProgressBar;
+﻿using KillerApps.AtariLynx.Tooling.ComLynx;
+using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 
-namespace KillerApps.AtariLynx.Tooling.ComLynx
+namespace KillerApps.AtariLynx.CommandLine.Bll
 {
-    public class ResetCommand : Command
+    public class BllResetCommand : Command
     {
-        //ProgressBar progressBar = new ProgressBar(100, "Receiving");
         private const int DEFAULT_BAUDRATE = 9600;
 
-        public ResetCommand() : base("reset", "Reset debug command") {
+        public BllResetCommand() : base("reset", "Reset debug command") {
             Option<int> comPortOption = new Option<int>("--comport");
             comPortOption.AddAlias("-p");
             comPortOption.IsRequired = true;
@@ -29,13 +30,6 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
             ComLynxUploader uploader = new ComLynxUploader();
             string comPortName = String.Format("COM{0}", comPort);
             uploader.Reset(comPortName, baudRate);
-        }
-
-        private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            ComLynxReceiver receiver = (ComLynxReceiver)sender;
-            int percentage = (e.TotalBytes * 100) / e.ReceiveBytes;
-            //progressBar.Tick(percentage, $"Received {e.TotalBytes}/{e.ReceiveBytes}");
         }
     }
 }

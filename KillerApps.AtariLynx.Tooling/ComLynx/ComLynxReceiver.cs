@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
@@ -55,9 +56,9 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			bytesRead = port.Read(buffer, 0, 256);
 			Array.Copy(buffer, 0, data, totalBytes, Math.Min(bytesRead, data.Length - totalBytes));
 			totalBytes += bytesRead;
-			Console.WriteLine($"Received BTR:{port.BytesToRead} Read:{bytesRead} Total:{totalBytes} Target:{receiveSize}");
+			int percentage = (totalBytes * 100) / receiveSize;
 
-            ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(bytesRead, totalBytes, receiveSize));
+			ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, bytesRead));
         }
 	}
 }

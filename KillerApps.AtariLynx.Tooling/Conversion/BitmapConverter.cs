@@ -29,7 +29,7 @@ namespace KillerApps.AtariLynx.Tooling.Conversion
             Color[] palette = new Color[16];
             for (int pal = 0; pal < 16; pal++)
             {
-                palette[15 - pal] = Color.FromArgb(16 * (picture[pal + 2] & 0x0f), 16 * (picture[pal + 18] & 0x0f), 16 * (picture[pal + 18] >> 4));
+                palette[15 - pal] = Color.FromArgb(16 * (picture[pal + 18] & 0x0f), 16 * (picture[pal + 2] & 0x0f), 16 * (picture[pal + 18] >> 4));
             }
 
             for (int y = 0; y < 102; y++)

@@ -1,19 +1,21 @@
-﻿using ShellProgressBar;
+﻿using KillerApps.AtariLynx.Tooling.ComLynx;
+using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 
-namespace KillerApps.AtariLynx.Tooling.ComLynx
+namespace KillerApps.AtariLynx.CommandLine.ComLynx
 {
     public class ComLynxCommand : Command
     {
-        //ProgressBar progressBar = new ProgressBar(100, "Receiving");
-
         private const int DEFAULT_RECEIVESIZE = 65536 * 8;
         private const int DEFAULT_BAUDRATE = 62500;
+        
+        private ProgressBar progressBar = null;
 
         public ComLynxCommand() : base("comlynx", "ComLynx related command") {
             Option<int> comPortOption = new Option<int>("--comport");
@@ -35,20 +37,22 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
         {
             ComLynxReceiver receiver = new ComLynxReceiver();
             receiver.ProgressChanged += OnProgressChanged;
-            //progressBar.Tick(0, $"Waiting for bytes");
 
-            string comPortName = String.Format("COM{0}", comPort);
-            byte[] data = receiver.Receive(comPortName, baudRate, size);
-            //progressBar.Tick(100, $"Download completed");
+            using (progressBar = new ProgressBar(100, "Initializing"))
+            {
+                progressBar.Tick(0, $"Waiting for bytes");
 
-            File.WriteAllBytes(output.FullName, data);
+                string comPortName = String.Format("COM{0}", comPort);
+                byte[] data = receiver.Receive(comPortName, baudRate, size);
+                progressBar.Tick(100, $"Download completed");
+
+                File.WriteAllBytes(output.FullName, data);
+            }
         }
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            ComLynxReceiver receiver = (ComLynxReceiver)sender;
-            int percentage = (e.TotalBytes * 100) / e.ReceiveBytes;
-            //progressBar.Tick(percentage, $"Received {e.TotalBytes}/{e.ReceiveBytes}");
+            progressBar.Tick(e.ProgressPercentage, $"Received {e.UserState}");
         }
     }
 }
