@@ -17,4 +17,8 @@
     <ProjectReference Include="..\KillerApps.AtariLynx.Tooling\KillerApps.AtariLynx.Tooling.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Flashcart\" />
+  </ItemGroup>
+
 </Project>

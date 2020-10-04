@@ -14,11 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KillerApps.AtariLynx.Tooling\KillerApps.AtariLynx.Tooling.csproj" />
+    <Folder Include="TestFiles\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TestFiles\" />
+    <ProjectReference Include="..\KillerApps.AtariLynx.Tooling\KillerApps.AtariLynx.Tooling.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,5 @@
 ﻿using KillerApps.AtariLynx.CommandLine.Bll;
 using KillerApps.AtariLynx.CommandLine.ComLynx;
-using KillerApps.AtariLynx.Tooling.ComLynx;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;

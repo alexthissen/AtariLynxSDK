@@ -1,7 +1,6 @@
 ﻿using KillerApps.AtariLynx.Tooling.Bll;
 using KillerApps.AtariLynx.Tooling.Models;
 using System;
-using System.CommandLine;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
