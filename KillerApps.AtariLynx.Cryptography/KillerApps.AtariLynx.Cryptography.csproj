@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Company>Killer-Apps</Company>
+    <Authors>Alex Thissen</Authors>
+    <Copyright>Copyright © Killer-Apps 2020</Copyright>
+    <Description>Cryptographic library for Atari Lynx rom files</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Loaders.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

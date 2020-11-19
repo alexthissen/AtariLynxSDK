@@ -20,6 +20,4 @@ namespace KillerApps.AtariLynx.CommandLine
             return await rootCommand.InvokeAsync(args);
         }
     }
-
-
 }

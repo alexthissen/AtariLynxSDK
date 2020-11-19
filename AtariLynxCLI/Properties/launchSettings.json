@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AtariLynxCLI": {
+      "commandName": "Project",
+      "commandLineArgs": "reset -p 6"
+    }
+  }
+}
