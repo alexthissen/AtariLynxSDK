@@ -44,9 +44,16 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
 
                 string comPortName = String.Format("COM{0}", comPort);
                 byte[] data = receiver.Receive(comPortName, baudRate, size);
-                progressBar.Tick(100, $"Download completed");
-
-                File.WriteAllBytes(output.FullName, data);
+                if (data == null)
+                {
+                    //progressBar.WriteErrorLine("Download failed");
+                    progressBar.WriteLine("Download failed");
+                }
+                else
+                {
+                    progressBar.Tick(100, $"Download completed");
+                    File.WriteAllBytes(output.FullName, data);
+                }
             }
         }
 

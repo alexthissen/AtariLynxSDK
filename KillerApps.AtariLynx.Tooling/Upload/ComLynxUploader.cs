@@ -68,17 +68,27 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				port.Handshake = Handshake.None;
 				port.ReadBufferSize = BUFFER_SIZE;
 				port.ReadTimeout = READ_TIMEOUT;
-				port.DataReceived += OnDataReceived;
 
-				port.Open();
+				if (!port.TryOpen()) return null;
 
 				// Write message to  
 				port.Write(messageBytes, 0, messageBytes.Length);
+				
+				// Read back same bytes because RX and TX are connected
+				//port.Read(messageBytes, 0, messageBytes.Length);
 
 				// Now Lynx should send back palette of 32 bytes and video memory 
 				while (totalBytes < data.Length) // or timeout
 				{
-					Thread.Sleep(500);
+                    try
+                    {
+						totalBytes += port.Read(data, totalBytes, Math.Min(data.Length - totalBytes, 64));
+                    }
+					catch (TimeoutException)
+                    {
+						Console.WriteLine("Timeout");
+						return null;
+                    }
 				}
 
 				if (port.IsOpen) port.Close();
@@ -106,7 +116,8 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			{
 				port.WriteTimeout = WRITE_TIMEOUT;
 				port.Handshake = Handshake.None;
-				port.Open();
+				
+				if (!port.TryOpen()) return;
 				
 				// Write command 
 				byte[] messageBytes = message.ToBytes();

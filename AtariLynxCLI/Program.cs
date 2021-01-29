@@ -13,10 +13,8 @@ namespace KillerApps.AtariLynx.CommandLine
         {
             RootCommand rootCommand = new RootCommand("Atari Lynx Command-line Interface");
             rootCommand.AddCommand(new ComLynxCommand());
-            rootCommand.AddCommand(new BllUploadCommand());
-            rootCommand.AddCommand(new BllResetCommand());
-            rootCommand.AddCommand(new BllScreenshotCommand());
-
+            rootCommand.AddCommand(new BllCommand());
+            
             return await rootCommand.InvokeAsync(args);
         }
     }

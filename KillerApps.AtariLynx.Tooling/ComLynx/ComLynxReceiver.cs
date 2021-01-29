@@ -34,9 +34,10 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				port.ReceivedBytesThreshold = RECEIVED_BYTES_THRESHOLD;
 				port.ReadBufferSize = BUFFER_SIZE;
 				port.ReadTimeout = READ_TIMEOUT;
-				port.DataReceived += OnDataReceived;
-				port.Open();
 
+				if (!port.TryOpen()) return null;
+				
+				port.DataReceived += OnDataReceived;
 				while (totalBytes < size) // or timeout
                 {
 					Thread.Sleep(500);

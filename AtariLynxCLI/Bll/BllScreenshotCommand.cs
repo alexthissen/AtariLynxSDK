@@ -44,6 +44,11 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
             using (progressBar = new ProgressBar(100, "Initializing"))
             {
                 screenshotData = uploader.Screenshot(comPortName, baudRate);
+                if (screenshotData == null)
+                {
+                    Console.WriteLine("Screenshot failed");
+                    return;
+                }
             }
 
             Spinner.Start("Converting image...", spinner => {
