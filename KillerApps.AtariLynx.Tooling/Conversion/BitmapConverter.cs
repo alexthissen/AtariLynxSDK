@@ -16,7 +16,30 @@ namespace KillerApps.AtariLynx.Tooling.Conversion
 
         public Bitmap ConvertToBitmap(byte[] picture)
         {
-            Bitmap screenshot = new Bitmap(160, 102);
+            Bitmap screenshot = new Bitmap(160, 102, PixelFormat.Format4bppIndexed);
+            ColorPalette palette = screenshot.Palette;
+            for (int index = 0; index < 16; index++)
+            {
+                palette.Entries[15 - index] = Color.FromArgb(
+                    16 * (picture[index + 2] & 0x0f), // Red
+                    16 * (picture[index + 18] & 0x0f),  // Green
+                    16 * (picture[index + 2] >> 4));  // Blue
+            }
+            screenshot.Palette = palette; // you need to re-set this property to force the new ColorPalette
+
+            BitmapData data = screenshot.LockBits(new Rectangle(Point.Empty, screenshot.Size),
+                ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
+            int byteCount = Math.Abs(data.Stride) * data.Height;
+            IntPtr ptr = data.Scan0;
+            byte[] pixels = new byte[byteCount];
+            Marshal.Copy(picture, 34, ptr, byteCount);
+
+            return screenshot;
+        }
+
+        public Bitmap ConvertToBitmap2(byte[] picture)
+        {
+            Bitmap screenshot = new Bitmap(160, 102, PixelFormat.Format4bppIndexed);
             //ColorPalette pal = screenshot.Palette;
             //for (int i = 0; i <= 16; i++)
             //{

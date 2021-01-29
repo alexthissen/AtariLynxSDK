@@ -27,9 +27,9 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
 
         private void BllResetHandler(int comPort, int baudRate)
         {
-            ComLynxUploader uploader = new ComLynxUploader();
+            BllComLynxClient uploader = new BllComLynxClient();
             string comPortName = String.Format("COM{0}", comPort);
-            uploader.Reset(comPortName, baudRate);
+            uploader.ResetProgram(comPortName, baudRate);
         }
     }
 }

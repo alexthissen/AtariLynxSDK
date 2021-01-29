@@ -33,7 +33,7 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
 
         private void BllUploadHandler(int comPort, int baudRate, FileInfo input)
         {
-            ComLynxUploader uploader = new ComLynxUploader();
+            BllComLynxClient uploader = new BllComLynxClient();
             uploader.ProgressChanged += OnProgressChanged;
             string comPortName = String.Format("COM{0}", comPort);
             byte[] bytes = File.ReadAllBytes(input.FullName);

@@ -36,14 +36,14 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
 
         private void BllScreenshotHandler(int comPort, int baudRate, FileInfo output)
         {
-            ComLynxUploader uploader = new ComLynxUploader();
-            uploader.ProgressChanged += OnProgressChanged;
+            BllComLynxClient client = new BllComLynxClient();
+            client.ProgressChanged += OnProgressChanged;
             string comPortName = String.Format("COM{0}", comPort);
             byte[] screenshotData;
 
             using (progressBar = new ProgressBar(100, "Initializing"))
             {
-                screenshotData = uploader.Screenshot(comPortName, baudRate);
+                screenshotData = client.TakeScreenshot(comPortName, baudRate);
                 if (screenshotData == null)
                 {
                     Console.WriteLine("Screenshot failed");

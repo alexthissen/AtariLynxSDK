@@ -19,6 +19,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 		private int bytesRead = 0;
 
 		private byte[] data;
+		private ComLynxReceiveStatus status;
 
         private int receiveSize { get; set; }
 
@@ -26,6 +27,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
 		public byte[] Receive(string comPort, int baudRate = 62500, int size = 65536 * 8)
         {
+			status = new ComLynxReceiveStatus() { TotalBytesToRead = size };
 			receiveSize = size + OVERFLOW_SIZE;
 			data = new byte[receiveSize];
 
@@ -58,8 +60,14 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			Array.Copy(buffer, 0, data, totalBytes, Math.Min(bytesRead, data.Length - totalBytes));
 			totalBytes += bytesRead;
 			int percentage = (totalBytes * 100) / receiveSize;
-
-			ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, bytesRead));
+			status.BytesRead = bytesRead;
+			ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
         }
+	}
+
+    public class ComLynxReceiveStatus
+    {
+        public int BytesRead { get; set; }
+        public int TotalBytesToRead { get; set; }
 	}
 }

@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace KillerApps.AtariLynx.Tooling.ComLynx
 {
-    public class ComLynxUploader
+    public class BllComLynxClient
     {
 		private const int WRITE_TIMEOUT = 5000;
 		private const int WRITE_CHUNKSIZE = 64;
@@ -38,7 +38,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				file.Length - ComFileHeader.HEADER_SIZE, baudRate);
 		}
 
-		public void Reset(string comPort, int baudRate = 62500)
+		public void ResetProgram(string comPort, int baudRate = 62500)
 		{
 			ResetDebugMessage message = new ResetDebugMessage();
 
@@ -46,7 +46,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			{
 				//port.WriteTimeout = WRITE_TIMEOUT;
 				port.Handshake = Handshake.None;
-				port.Open();
+				if (!port.TryOpen()) return;
 
 				// Write command 
 				byte[] commandBytes = message.ToBytes();
@@ -56,12 +56,12 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			}
 		}
 
-		public byte[] Screenshot(string comPort, int baudRate = 62500)
+		public byte[] TakeScreenshot(string comPort, int baudRate = 62500)
 		{
 			ScreenshotDebugMessage message = new ScreenshotDebugMessage();
 			byte[] messageBytes = message.ToBytes();
 
-			data = new byte[SCREENSHOT_SIZE + PALETTE_SIZE + messageBytes.Length];
+			data = new byte[SCREENSHOT_SIZE + PALETTE_SIZE];
 
 			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
 			{
@@ -75,7 +75,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				port.Write(messageBytes, 0, messageBytes.Length);
 				
 				// Read back same bytes because RX and TX are connected
-				//port.Read(messageBytes, 0, messageBytes.Length);
+				port.Read(messageBytes, 0, messageBytes.Length);
 
 				// Now Lynx should send back palette of 32 bytes and video memory 
 				while (totalBytes < data.Length) // or timeout
@@ -86,7 +86,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
                     }
 					catch (TimeoutException)
                     {
-						Console.WriteLine("Timeout");
+						Console.WriteLine("Timeout waiting for response.");
 						return null;
                     }
 				}

@@ -59,7 +59,8 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            progressBar.Tick(e.ProgressPercentage, $"Received {e.UserState}");
+            ComLynxReceiveStatus status = (ComLynxReceiveStatus)e.UserState;
+            progressBar.Tick(e.ProgressPercentage, $"Received {status.BytesRead}/{status.TotalBytesToRead}");
         }
     }
 }
