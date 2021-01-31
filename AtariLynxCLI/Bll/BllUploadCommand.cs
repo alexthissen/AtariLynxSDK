@@ -23,7 +23,7 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
             Option<int> baudRateOption = new Option<int>(new [] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
             Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
             uploadFileOption.AddAlias("-i");
-            uploadFileOption.IsRequired = true;
+            uploadFileOption.ExistingOnly().IsRequired = true;
 
             this.AddOption(comPortOption);
             this.AddOption(baudRateOption);

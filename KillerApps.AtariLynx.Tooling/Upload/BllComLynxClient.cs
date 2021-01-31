@@ -17,9 +17,9 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 		private const int BUFFER_SIZE = 256;
 		private const int RECEIVED_BYTES_THRESHOLD = 256;
 		private const int READ_TIMEOUT = 5000;
-		private const ushort SCREENSHOT_SIZE = 102 * 160 / 2;
 		private const ushort PALETTE_SIZE = 32;
-		
+		private const ushort SCREENSHOT_SIZE = 102 * 160 / 2;
+
 		private int totalBytes = 0;
 		private int bytesRead = 0;
 		private byte[] data;
@@ -61,7 +61,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			ScreenshotDebugMessage message = new ScreenshotDebugMessage();
 			byte[] messageBytes = message.ToBytes();
 
-			data = new byte[SCREENSHOT_SIZE + PALETTE_SIZE];
+			data = new byte[PALETTE_SIZE + SCREENSHOT_SIZE];
 
 			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
 			{

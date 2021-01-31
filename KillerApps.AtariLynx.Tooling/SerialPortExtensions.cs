@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Ports;
 
-namespace KillerApps.AtariLynx.Tooling.ComLynx
+namespace KillerApps.AtariLynx.Tooling
 {
     public static class SerialPortExtensions
     {

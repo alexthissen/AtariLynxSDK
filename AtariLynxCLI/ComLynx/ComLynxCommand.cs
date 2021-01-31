@@ -46,8 +46,8 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
                 byte[] data = receiver.Receive(comPortName, baudRate, size);
                 if (data == null)
                 {
-                    //progressBar.WriteErrorLine("Download failed");
-                    progressBar.WriteLine("Download failed");
+                    progressBar.WriteErrorLine("Download failed");
+                    //progressBar.WriteLine("Download failed");
                 }
                 else
                 {
