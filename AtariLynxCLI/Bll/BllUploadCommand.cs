@@ -13,33 +13,33 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
     public class BllUploadCommand : Command
     {
         private const int DEFAULT_BAUDRATE = 62500;
+
         private ProgressBar progressBar = null;
 
         public BllUploadCommand() : base("upload", "Upload command") 
         {
-            Option<int> comPortOption = new Option<int>("--comport");
-            comPortOption.AddAlias("-p");
-            comPortOption.IsRequired = true;
+            Option<string> portOption = new Option<string>("--portname", "Portname");
+            portOption.AddAlias("-p");
+            portOption.IsRequired = true;
             Option<int> baudRateOption = new Option<int>(new [] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
             Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
             uploadFileOption.AddAlias("-i");
             uploadFileOption.ExistingOnly().IsRequired = true;
 
-            this.AddOption(comPortOption);
+            this.AddOption(portOption);
             this.AddOption(baudRateOption);
             this.AddOption(uploadFileOption);
-            this.Handler = CommandHandler.Create<int, int, FileInfo>(BllUploadHandler);
+            this.Handler = CommandHandler.Create<string, int, FileInfo>(BllUploadHandler);
         }
 
-        private void BllUploadHandler(int comPort, int baudRate, FileInfo input)
+        private void BllUploadHandler(string portName, int baudRate, FileInfo input)
         {
             BllComLynxClient uploader = new BllComLynxClient();
             uploader.ProgressChanged += OnProgressChanged;
-            string comPortName = String.Format("COM{0}", comPort);
             byte[] bytes = File.ReadAllBytes(input.FullName);
             using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
             {
-                uploader.UploadComFile(comPortName, bytes, baudRate);
+                uploader.UploadComFile(portName, bytes, baudRate);
                 progressBar.Tick(100, $"Upload completed");
             }
         }

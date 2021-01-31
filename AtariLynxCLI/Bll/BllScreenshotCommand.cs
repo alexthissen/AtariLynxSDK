@@ -17,33 +17,33 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
     public class BllScreenshotCommand : Command
     {
         private const int DEFAULT_BAUDRATE = 9600;
+
         private ProgressBar progressBar = null;
 
         public BllScreenshotCommand() : base("screenshot", "Request screens shot") {
-            Option<int> comPortOption = new Option<int>("--comport");
-            comPortOption.AddAlias("-p");
-            comPortOption.IsRequired = true;
+            Option<string> portOption = new Option<string>("--portname", "Portname");
+            portOption.AddAlias("-p");
+            portOption.IsRequired = true;
             Option<int> baudRateOption = new Option<int>(
                 new [] { "--baudrate", "-b" }, 
                 () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
             Option<FileInfo> outputFileOption = new Option<FileInfo>(new string[] { "--output", "-o" });
 
-            this.AddOption(comPortOption);
+            this.AddOption(portOption);
             this.AddOption(baudRateOption);
             this.AddOption(outputFileOption);
-            this.Handler = CommandHandler.Create<int, int, FileInfo>(BllScreenshotHandler);
+            this.Handler = CommandHandler.Create<string, int, FileInfo>(BllScreenshotHandler);
         }
 
-        private void BllScreenshotHandler(int comPort, int baudRate, FileInfo output)
+        private void BllScreenshotHandler(string portName, int baudRate, FileInfo output)
         {
             BllComLynxClient client = new BllComLynxClient();
             client.ProgressChanged += OnProgressChanged;
-            string comPortName = String.Format("COM{0}", comPort);
             byte[] screenshotData;
 
             using (progressBar = new ProgressBar(100, "Initializing"))
             {
-                screenshotData = client.TakeScreenshot(comPortName, baudRate);
+                screenshotData = client.TakeScreenshot(portName, baudRate);
                 if (screenshotData == null)
                 {
                     Console.WriteLine("Screenshot failed");

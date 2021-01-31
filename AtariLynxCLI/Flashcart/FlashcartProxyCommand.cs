@@ -20,28 +20,28 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
         private ProgressBar progressBar = null;
 
         public FlashcartProxyCommand() : base("flashcart", "Flashcart related command") {
-            Option<int> comPortOption = new Option<int>("--comport");
-            comPortOption.AddAlias("-p");
-            comPortOption.IsRequired = true;
+            Option<string> portOption = new Option<string>("--portname", "Portname");
+            portOption.AddAlias("-p");
+            portOption.IsRequired = true;
             Option<int> baudRateOption = new Option<int>(new [] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for Flashcart");
 
-            this.AddOption(comPortOption);
+            this.AddOption(portOption);
             this.AddOption(baudRateOption);
 
             //Argument<string> arg = new Argument<string>("command", "Command to send to Flashcart");
             //this.AddArgument(arg);
             //this.AddArgument(new Argument<string>("command2"));
-            this.Handler = CommandHandler.Create<int, int, string>(FlashcartProxyHandler);
+            this.Handler = CommandHandler.Create<string, int, string>(FlashcartProxyHandler);
         }
 
-        private void FlashcartProxyHandler(int comPort, int baudRate, string command)
+        private void FlashcartProxyHandler(string portName, int baudRate, string command)
         {
             Console.WriteLine(command);
             FlashcartProxy proxy = new FlashcartProxy();
             //Console.Write("flash:>");
             //string command = Console.ReadLine();
             //ParseResult result = new ComLynxCommand().Parse(command);
-            string response = proxy.SendMessageAndReceiveText($"COM{comPort}", baudRate);
+            string response = proxy.SendMessageAndReceiveText(portName, baudRate);
             Console.WriteLine(response);
         }
 

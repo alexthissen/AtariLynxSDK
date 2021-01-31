@@ -25,13 +25,13 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
         public event ProgressChangedEventHandler ProgressChanged;
 
-		public byte[] Receive(string comPort, int baudRate = 62500, int size = 65536 * 8)
+		public byte[] Receive(string portName, int baudRate = 62500, int size = 65536 * 8)
         {
 			status = new ComLynxReceiveStatus() { TotalBytesToRead = size };
 			receiveSize = size + OVERFLOW_SIZE;
 			data = new byte[receiveSize];
 
-			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Mark, 8, StopBits.One))
+			using (SerialPort port = new SerialPort(portName, baudRate, Parity.Mark, 8, StopBits.One))
 			{
 				port.ReceivedBytesThreshold = RECEIVED_BYTES_THRESHOLD;
 				port.ReadBufferSize = BUFFER_SIZE;

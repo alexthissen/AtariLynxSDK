@@ -28,9 +28,9 @@ namespace KillerApps.AtariLynx.Tooling.Flashcart
         // "l", ".LNX ROM Type Set","");
         // "x", "Resetting","FLASH");
 
-        public string SendMessageAndReceiveText(string comPort, int baudRate = 115200)
+        public string SendMessageAndReceiveText(string portName, int baudRate = 115200)
         {
-            using (SerialPort port = new SerialPort(comPort, baudRate, Parity.None, 8, StopBits.One))
+            using (SerialPort port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One))
             {
                 if (!port.TryOpen()) return String.Empty;
                 port.WriteByte((byte)'s');

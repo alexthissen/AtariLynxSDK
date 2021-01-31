@@ -18,22 +18,22 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
         private ProgressBar progressBar = null;
 
         public ComLynxCommand() : base("comlynx", "ComLynx related command") {
-            Option<int> comPortOption = new Option<int>("--comport");
-            comPortOption.AddAlias("-p");
-            comPortOption.IsRequired = true;
+            Option<string> portOption = new Option<string>("--portname", "Portname");
+            portOption.AddAlias("-p");
+            portOption.IsRequired = true;
             Option<int> baudRateOption = new Option<int>(new [] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
             Option<int> sizeOption = new Option<int>(new[] { "--size", "-s" }, () => DEFAULT_RECEIVESIZE, "Size to receive in bytes");
             Option<FileInfo> outputFileOption = new Option<FileInfo>("--output");
             outputFileOption.AddAlias("-o");
 
-            this.AddOption(comPortOption);
+            this.AddOption(portOption);
             this.AddOption(baudRateOption);
             this.AddOption(sizeOption);
             this.AddOption(outputFileOption);
-            this.Handler = CommandHandler.Create<int, int, int, FileInfo>(ComLynxReceiveHandler);
+            this.Handler = CommandHandler.Create<string, int, int, FileInfo>(ComLynxReceiveHandler);
         }
 
-        private void ComLynxReceiveHandler(int comPort, int baudRate, int size, FileInfo output)
+        private void ComLynxReceiveHandler(string portName, int baudRate, int size, FileInfo output)
         {
             ComLynxReceiver receiver = new ComLynxReceiver();
             receiver.ProgressChanged += OnProgressChanged;
@@ -42,12 +42,10 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
             {
                 progressBar.Tick(0, $"Waiting for bytes");
 
-                string comPortName = String.Format("COM{0}", comPort);
-                byte[] data = receiver.Receive(comPortName, baudRate, size);
+                byte[] data = receiver.Receive(portName, baudRate, size);
                 if (data == null)
                 {
                     progressBar.WriteErrorLine("Download failed");
-                    //progressBar.WriteLine("Download failed");
                 }
                 else
                 {

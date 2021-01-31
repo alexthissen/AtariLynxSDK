@@ -26,7 +26,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 		
 		public event ProgressChangedEventHandler ProgressChanged;
 
-		public void UploadComFile(string comPort, byte[] file, int baudRate = 62500)
+		public void UploadComFile(string portName, byte[] file, int baudRate = 62500)
 		{
 			ComFileHeader header = ComFileHeader.FromBytes(file);
 			//if (!header.Verify())
@@ -34,15 +34,15 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			//	Console.WriteLine("Invalid Lynx Com file");
 			//}
 
-			UploadCore(comPort, header, file, ComFileHeader.HEADER_SIZE, 
+			UploadCore(portName, header, file, ComFileHeader.HEADER_SIZE, 
 				file.Length - ComFileHeader.HEADER_SIZE, baudRate);
 		}
 
-		public void ResetProgram(string comPort, int baudRate = 62500)
+		public void ResetProgram(string portName, int baudRate = 62500)
 		{
 			ResetDebugMessage message = new ResetDebugMessage();
 
-			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
+			using (SerialPort port = new SerialPort(portName, baudRate, Parity.Even, 8, StopBits.One))
 			{
 				//port.WriteTimeout = WRITE_TIMEOUT;
 				port.Handshake = Handshake.None;
@@ -56,14 +56,14 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			}
 		}
 
-		public byte[] TakeScreenshot(string comPort, int baudRate = 62500)
+		public byte[] TakeScreenshot(string portName, int baudRate = 62500)
 		{
 			ScreenshotDebugMessage message = new ScreenshotDebugMessage();
 			byte[] messageBytes = message.ToBytes();
 
 			data = new byte[PALETTE_SIZE + SCREENSHOT_SIZE];
 
-			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
+			using (SerialPort port = new SerialPort(portName, baudRate, Parity.Even, 8, StopBits.One))
 			{
 				port.Handshake = Handshake.None;
 				port.ReadBufferSize = BUFFER_SIZE;
@@ -108,11 +108,11 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, bytesRead));
 		}
 
-		protected void UploadCore(string comPort, ComFileHeader header, byte[] program, int offset, int count, int baudRate)
+		protected void UploadCore(string portName, ComFileHeader header, byte[] program, int offset, int count, int baudRate)
         {
 			UploadDebugMessage message = new UploadDebugMessage(header.LoadAddress, header.ObjectSize);
 
-			using (SerialPort port = new SerialPort(comPort, baudRate, Parity.Even, 8, StopBits.One))
+			using (SerialPort port = new SerialPort(portName, baudRate, Parity.Even, 8, StopBits.One))
 			{
 				port.WriteTimeout = WRITE_TIMEOUT;
 				port.Handshake = Handshake.None;

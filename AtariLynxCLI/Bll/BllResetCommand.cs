@@ -15,21 +15,20 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
         private const int DEFAULT_BAUDRATE = 9600;
 
         public BllResetCommand() : base("reset", "Reset debug command") {
-            Option<int> comPortOption = new Option<int>("--comport");
-            comPortOption.AddAlias("-p");
-            comPortOption.IsRequired = true;
+            Option<string> portOption = new Option<string>("--portname", "Portname");
+            portOption.AddAlias("-p");
+            portOption.IsRequired = true;
             Option<int> baudRateOption = new Option<int>(new [] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
 
-            this.AddOption(comPortOption);
+            this.AddOption(portOption);
             this.AddOption(baudRateOption);
-            this.Handler = CommandHandler.Create<int, int>(BllResetHandler);
+            this.Handler = CommandHandler.Create<string, int>(BllResetHandler);
         }
 
-        private void BllResetHandler(int comPort, int baudRate)
+        private void BllResetHandler(string portName, int baudRate)
         {
             BllComLynxClient uploader = new BllComLynxClient();
-            string comPortName = String.Format("COM{0}", comPort);
-            uploader.ResetProgram(comPortName, baudRate);
+            uploader.ResetProgram(portName, baudRate);
         }
     }
 }
