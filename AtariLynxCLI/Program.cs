@@ -16,22 +16,13 @@ namespace KillerApps.AtariLynx.CommandLine
             rootCommand.AddCommand(new ComLynxCommand());
             rootCommand.AddCommand(new BllCommand());
             rootCommand.AddCommand(new FlashcartProxyCommand());
+            rootCommand.AddCommand(new FlashcartWriteCommand());
 
             var verboseOption = new Option<bool>("--verbose", "Show verbose output");
             verboseOption.AddAlias("-v");
 
-            Argument<CardSuit> arg = new Argument<CardSuit>("suit");
-            rootCommand.AddArgument(arg);
             rootCommand.TryAddGlobalOption(verboseOption);
             return await rootCommand.InvokeAsync(args);
         }
-    }
-
-    public enum CardSuit
-    {
-        Hearts, 
-        Diamonds,
-        Clubs,
-        Spades
     }
 }

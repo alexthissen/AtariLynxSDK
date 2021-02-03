@@ -14,6 +14,12 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
     {
         public BllCommand() : base("bll", "BLL context") 
         {
+            Option<string> portOption = new Option<string>("--comport", "Portname");
+            portOption.AddAlias("-c");
+            portOption.IsRequired = true;
+
+            this.AddOption(portOption);
+
             this.AddCommand(new BllUploadCommand());
             this.AddCommand(new BllResetCommand());
             this.AddCommand(new BllScreenshotCommand());
