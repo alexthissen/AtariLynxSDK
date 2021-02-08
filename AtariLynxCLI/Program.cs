@@ -15,8 +15,8 @@ namespace KillerApps.AtariLynx.CommandLine
             RootCommand rootCommand = new RootCommand("Atari Lynx Command-line Interface");
             rootCommand.AddCommand(new ComLynxCommand());
             rootCommand.AddCommand(new BllCommand());
-            rootCommand.AddCommand(new FlashcartProxyCommand());
-            rootCommand.AddCommand(new FlashcartWriteCommand());
+            rootCommand.AddCommand(new FlashCardCommand());
+            //rootCommand.AddCommand(new FlashcartWriteCommand());
 
             var verboseOption = new Option<bool>("--verbose", "Show verbose output");
             verboseOption.AddAlias("-v");

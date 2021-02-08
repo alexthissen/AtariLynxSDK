@@ -40,13 +40,13 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            WriteStatus status = (WriteStatus)e.UserState;
+            FlashCardWriteStatus status = (FlashCardWriteStatus)e.UserState;
             progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
         private void FlashcartProxyHandler(string portName, int baudRate, FileInfo input)
         {
-            FlashcartProxy proxy = new FlashcartProxy();
+            FlashcartClient proxy = new FlashcartClient();
             //string response = proxy.SendMessageAndReceiveText(portName, baudRate);
             byte[] content = File.ReadAllBytes(input.FullName);
             proxy.ProgressChanged += OnProgressChanged;
@@ -54,7 +54,7 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
             string response;
             using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
             {
-                response = proxy.WriteRomFile(portName, baudRate, content);
+                response = proxy.WriteRomFile(portName, baudRate, content, false);
             }
 
             if (response.EndsWith(OK_TERMINATOR))
@@ -65,21 +65,21 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
             Console.WriteLine(response);
         }
 
-        private void FlashcartProxyHandlerSystemInfo(string portName, int baudRate, string command)
-        {
-            Console.WriteLine(command);
-            FlashcartProxy proxy = new FlashcartProxy();
-            //Console.Write("flash:>");
-            //string command = Console.ReadLine();
-            //ParseResult result = new ComLynxCommand().Parse(command);
-            string response = proxy.SendMessageAndReceiveText(portName, baudRate);
+        //private void FlashcartProxyHandlerSystemInfo(string portName, int baudRate, string command)
+        //{
+        //    Console.WriteLine(command);
+        //    FlashcartProxy proxy = new FlashcartProxy();
+        //    //Console.Write("flash:>");
+        //    //string command = Console.ReadLine();
+        //    //ParseResult result = new ComLynxCommand().Parse(command);
+        //    string response = proxy.SendMessageAndReceiveText(portName, baudRate);
 
-            if (response.EndsWith(OK_TERMINATOR))
-            {
-                response = response.Substring(0, response.Length - OK_TERMINATOR.Length - 1).Trim();
-            }
-            Console.WriteLine(response);
-        }
+        //    if (response.EndsWith(OK_TERMINATOR))
+        //    {
+        //        response = response.Substring(0, response.Length - OK_TERMINATOR.Length - 1).Trim();
+        //    }
+        //    Console.WriteLine(response);
+        //}
 
         //private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         //{
