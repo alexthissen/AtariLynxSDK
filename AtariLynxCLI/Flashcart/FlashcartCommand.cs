@@ -28,7 +28,7 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
 
             this.AddCommand(new FlashcartWriteCommand());
             this.AddCommand(new FlashcartVerifyCommand());
-            //this.AddCommand(new FlashcartSettingsCommand());
+            this.AddCommand(new FlashcartSettingsCommand());
 
             //this.Handler = CommandHandler.Create<string, int, FileInfo>(FlashcartProxyHandler);
         }

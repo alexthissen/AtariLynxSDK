@@ -11,7 +11,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcart
     {
         private const int BUFFER_SIZE = 256;
         private const int WRITE_CHUNKSIZE = 64;
-        private const int RECEIVED_BYTES_THRESHOLD = 32;
+        private const int RECEIVED_BYTES_THRESHOLD = 1;
         
         public const char FLASHCART_SYSTEMINFO = 's';
         public const char FLASHCART_WRITE = 'w';
