@@ -1,6 +1,6 @@
 ﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
 using KillerApps.AtariLynx.Tooling.ComLynx;
-using KillerApps.AtariLynx.Tooling.Flashcart;
+using KillerApps.AtariLynx.Tooling.Flashcard;
 using Kurukuru;
 using ShellProgressBar;
 using System;
@@ -12,21 +12,16 @@ using System.ComponentModel;
 using System.IO;
 using System.Text;
 
-namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
+namespace KillerApps.AtariLynx.CommandLine.Flashcard
 {
-    public class FlashcardWriteOptions
-    {
-        public FileInfo Input { get; set; }
-        public bool Force { get; set; }
-    }
 
-    public class FlashcartWriteCommand : Command
+    public class FlashcardWriteCommand : Command
     {
         private const int DEFAULT_BAUDRATE = 115200;
         private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
         private ProgressBar progressBar = null;
 
-        public FlashcartWriteCommand() : base("write", "Write to Flashcard")
+        public FlashcardWriteCommand() : base("write", "Write to Flashcard")
         {
             Option<bool> forceOption = new Option<bool>("--force");
             forceOption.AddAlias("-f");
@@ -36,16 +31,16 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
             uploadFileOption.AddAlias("-i");
             uploadFileOption.ExistingOnly().IsRequired = true;
             this.AddOption(uploadFileOption);
-            this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FlashcardWriteOptions, IConsole>(FlashcartWriteHandler);
+            this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FlashcardWriteOptions, IConsole>(FlashcardWriteHandler);
         }
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            FlashCardWriteStatus status = (FlashCardWriteStatus)e.UserState;
+            FlashcardWriteStatus status = (FlashcardWriteStatus)e.UserState;
             progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
-        private void FlashcartWriteHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FlashcardWriteOptions writeOptions, IConsole console)
+        private void FlashcardWriteHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FlashcardWriteOptions writeOptions, IConsole console)
         {
             string response = String.Empty;
             byte[] content = File.ReadAllBytes(writeOptions.Input.FullName);
@@ -55,7 +50,7 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
                 Progress<string> progress = new Progress<string>(message => {
                     if (global.Verbose) progressBar.WriteLine(message);
                 });
-                FlashcartClient proxy = new FlashcartClient(progress);
+                FlashcardClient proxy = new FlashcardClient(progress);
 
                 // Add event handlers
                 proxy.ProgressChanged += OnProgressChanged;

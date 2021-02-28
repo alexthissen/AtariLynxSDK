@@ -1,7 +1,6 @@
 ﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
 using KillerApps.AtariLynx.Tooling.ComLynx;
-using KillerApps.AtariLynx.Tooling.Flashcart;
-using Kurukuru;
+using KillerApps.AtariLynx.Tooling.Flashcard;
 using ShellProgressBar;
 using System;
 using System.Collections.Generic;
@@ -12,30 +11,30 @@ using System.ComponentModel;
 using System.IO;
 using System.Text;
 
-namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
+namespace KillerApps.AtariLynx.CommandLine.Flashcard
 {
-    public class FlashcartVerifyCommand : Command
+    public class FlashcardVerifyCommand : Command
     {
         private const int DEFAULT_BAUDRATE = 115200;
         private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
         private ProgressBar progressBar = null;
 
-        public FlashcartVerifyCommand() : base("verify", "Verify ROM on Flashcard")
+        public FlashcardVerifyCommand() : base("verify", "Verify ROM on Flashcard")
         {
             Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
             uploadFileOption.AddAlias("-i");
             uploadFileOption.ExistingOnly().IsRequired = true;
             this.AddOption(uploadFileOption);
-            this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FileInfo, IConsole>(FlashcartVerifyHandler);
+            this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FileInfo, IConsole>(FlashcardVerifyHandler);
         }
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            FlashCardWriteStatus status = (FlashCardWriteStatus)e.UserState;
+            FlashcardWriteStatus status = (FlashcardWriteStatus)e.UserState;
             progressBar.Tick(e.ProgressPercentage, $"Verifying {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
-        private void FlashcartVerifyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FileInfo input, IConsole console)
+        private void FlashcardVerifyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FileInfo input, IConsole console)
         {
             string response = String.Empty;
             byte[] content = File.ReadAllBytes(input.FullName);
@@ -45,7 +44,7 @@ namespace KillerApps.AtariLynx.CommandLine.FlashcartCommand
                 Progress<string> progress = new Progress<string>(message => {
                     if (global.Verbose) progressBar.WriteLine(message);
                 });
-                FlashcartClient proxy = new FlashcartClient(progress);
+                FlashcardClient proxy = new FlashcardClient(progress);
 
                 // Add event handlers
                 proxy.ProgressChanged += OnProgressChanged;

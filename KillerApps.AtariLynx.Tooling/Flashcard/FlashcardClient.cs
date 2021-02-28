@@ -5,17 +5,17 @@ using System.IO.Ports;
 using System.Text;
 using System.Threading;
 
-namespace KillerApps.AtariLynx.Tooling.Flashcart
+namespace KillerApps.AtariLynx.Tooling.Flashcard
 {
-    public class FlashcartClient
+    public class FlashcardClient
     {
         private const int BUFFER_SIZE = 256;
         private const int WRITE_CHUNKSIZE = 64;
         private const int RECEIVED_BYTES_THRESHOLD = 1;
         
-        public const char FLASHCART_SYSTEMINFO = 's';
-        public const char FLASHCART_WRITE = 'w';
-        public const char FLASHCART_VERIFY = 'v';
+        public const char FLASHCARD_SYSTEMINFO = 's';
+        public const char FLASHCARD_WRITE = 'w';
+        public const char FLASHCARD_VERIFY = 'v';
 
         private const string ERASE_COMPLETE_MESSAGE = "erasing memory............";
         private const string START_UPLOAD_MESSAGE = "please start upload data";
@@ -29,14 +29,14 @@ namespace KillerApps.AtariLynx.Tooling.Flashcart
 
         public event ProgressChangedEventHandler ProgressChanged;
         
-        private FlashCardWriteStatus status = new FlashCardWriteStatus();
+        private FlashcardWriteStatus status = new FlashcardWriteStatus();
         StringBuilder builder = new StringBuilder();
         int processedIndex = 0;
 
         private IProgress<string> progress { get; }
         EventWaitHandle continueWaitHandle, waitVerifyCompleted;
 
-        public FlashcartClient(IProgress<string> progress = null)
+        public FlashcardClient(IProgress<string> progress = null)
         {
             this.progress = progress;
         }
@@ -52,7 +52,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcart
                 if (!port.TryOpen()) return String.Empty;
 
                 // Write operation 
-                port.WriteByte((byte)FLASHCART_WRITE);
+                port.WriteByte((byte)FLASHCARD_WRITE);
 
                 // Wait for completion of erase action
                 if (!continueWaitHandle.WaitOne(5000))
@@ -93,7 +93,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcart
                 if (!port.TryOpen()) return String.Empty;
 
                 // Write operation 
-                port.WriteByte((byte)FLASHCART_VERIFY);
+                port.WriteByte((byte)FLASHCARD_VERIFY);
 
                 Thread.Sleep(1000);
 

@@ -1,6 +1,6 @@
-﻿namespace KillerApps.AtariLynx.Tooling.Flashcart
+﻿namespace KillerApps.AtariLynx.Tooling.Flashcard
 {
-    public class FlashCardWriteStatus
+    public class FlashcardWriteStatus
     {
         public string Log { get; set; }
         public int BytesWritten { get; set; }
