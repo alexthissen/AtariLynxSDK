@@ -14,23 +14,29 @@ using System.Text;
 
 namespace KillerApps.AtariLynx.CommandLine.Flashcard
 {
-
     public class FlashcardWriteCommand : Command
     {
         private const int DEFAULT_BAUDRATE = 115200;
         private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
         private ProgressBar progressBar = null;
 
-        public FlashcardWriteCommand() : base("write", "Write to Flashcard")
+        public FlashcardWriteCommand() : base("write", "Write to flashcard")
         {
+            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
+
             Option<bool> forceOption = new Option<bool>("--force");
             forceOption.AddAlias("-f");
             this.AddOption(forceOption);
 
-            Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
-            uploadFileOption.AddAlias("-i");
-            uploadFileOption.ExistingOnly().IsRequired = true;
-            this.AddOption(uploadFileOption);
+            //Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
+            //uploadFileOption.AddAlias("-i");
+            //uploadFileOption.ExistingOnly().IsRequired = true;
+            //this.AddOption(uploadFileOption);
+
+            Argument<FileInfo> inputFileArgument = new Argument<FileInfo>("romfile", "File to send to flashcard");
+            inputFileArgument.ExistingOnly();
+            this.AddArgument(inputFileArgument);
+
             this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FlashcardWriteOptions, IConsole>(FlashcardWriteHandler);
         }
 

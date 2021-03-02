@@ -16,27 +16,27 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
     public class FlashCardCommand : Command
     {
         private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
+        private const int DEFAULT_BAUDRATE = 115200;
 
         public FlashCardCommand() : base("flashcard", "Lynx FlashCard related command") 
         {
             this.AddCommand(new FlashcardWriteCommand());
             this.AddCommand(new FlashcardVerifyCommand());
             this.AddCommand(new FlashcardSettingsCommand());
+            this.AddCommand(CreateDirectCommand("info", "Flashcard board information", 's'));
+            this.AddCommand(CreateDirectCommand("credits", "Credits", 'c'));
+            this.AddCommand(CreateDirectCommand("reset", "Reset all", 'x'));
         }
 
-        private void FlashcardProxyHandlerSystemInfo(string portName, int baudRate, string command)
-        {
-            FlashcardClient proxy = new FlashcardClient();
-            //Console.Write("flash:>");
-            //string command = Console.ReadLine();
-            //ParseResult result = new ComLynxCommand().Parse(command);
-            string response = proxy.SendMessageAndReceiveText(portName, baudRate, FlashcardClient.FLASHCARD_SYSTEMINFO);
-
-            if (response.EndsWith(OK_TERMINATOR))
-            {
-                response = response.Substring(0, response.Length - OK_TERMINATOR.Length - 1).Trim();
-            }
-            Console.WriteLine(response);
+        private static Command CreateDirectCommand(string name, string description, char message) {
+            Command command = new Command(name, description)
+                .AddSerialPortOptions(DEFAULT_BAUDRATE);
+            command.Handler = CommandHandler.Create((SerialPortOptions options) => {
+                FlashcardClient client = new FlashcardClient();
+                string response = client.SendMessageAndReceiveText(options.PortName, options.Baudrate, message);
+                Console.WriteLine(response);
+            });
+            return command;
         }
     }
 }

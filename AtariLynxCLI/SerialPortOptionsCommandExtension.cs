@@ -7,16 +7,15 @@ namespace KillerApps.AtariLynx.CommandLine
 {
     public static class CommandOptionsExtension
     {
-        private const int DEFAULT_BAUDRATE = 115200;
-
-        public static void AddSerialPortOptions(this Command command)
+        public static Command AddSerialPortOptions(this Command command, int defaultBaudrate)
         {
-            Option<string> portOption = new Option<string>("--portname", "Portname");
+            Option<string> portOption = new Option<string>("--portname", "Name of serial port");
             portOption.AddAlias("-p");
             portOption.IsRequired = true;
-            Option<int> baudRateOption = new Option<int>(new[] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for FlashCard");
+            Option<int> baudRateOption = new Option<int>(new[] { "--baudrate", "-b" }, () => defaultBaudrate, "Baudrate for serial port");
             command.AddOption(portOption);
             command.AddOption(baudRateOption);
+            return command;
         }
     }
 }

@@ -32,14 +32,15 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
         };
 
         private ProgressBar progressBar = null;
+        private const int DEFAULT_BAUDRATE = 115200;
 
         public FlashcardSettingsCommand() : base("set", "Flashcard settings") 
         {
-            this.AddSerialPortOptions();
+            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
 
             this.AddOption(new Option<FlashcardLanguage>(new string[] { "--language", "-l" }, "Language setting"));
 
-            Option<int> rateOption = new Option<int>("--rate");
+            Option<int> rateOption = new Option<int>("--rate", "Baudrate for Flashcard");
             rateOption.AddAlias("-r");
             rateOption.FromAmong(Baudrates.Keys.Select(k => k.ToString()).ToArray());
             this.AddOption(rateOption);
@@ -49,18 +50,20 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             modusOption.FromAmong("lnx", "bin", "lyx", "o");
             this.AddOption(modusOption);
 
-            Option<string> sizeOption = new Option<string>("--size", "Size");
+            Option<string> sizeOption = new Option<string>("--size", "Size of roms");
             sizeOption.AddAlias("-s");
             sizeOption.FromAmong(Sizes.Keys.ToArray());
             this.AddOption(sizeOption);
-
-            //Argument<string> arg = new Argument<string>("command", "Command to send to Flashcard");
-            //this.AddArgument(arg);
-            //this.AddArgument(new Argument<string>("command2"));
             
-            //this.AddValidator(cmd => {
-            //    if (cmd.ValueForOption("size") != null) return "yes"; else return null;
-            //});
+            this.AddValidator(cmd =>
+            {
+                if (cmd.ValueForOption<FlashcardModus>("modus") == FlashcardModus.O &&
+                    cmd.ValueForOption("size") != null)
+                {
+                    return "You cannot specify a size for '*.o' files";
+                }
+                return null;
+            });
 
             this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FlashcardSettings, IConsole>(FlashcardProxyHandler);
         }
@@ -111,6 +114,10 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
                 //Console.ForegroundColor = ConsoleColor.DarkGreen;
                 console.Out.Write(response);
                 //Console.ForegroundColor = color;
+            }
+            else
+            {
+                console.Out.Write("Settings changed. (Specify --verbose for details)");
             }
         }
     }
