@@ -28,11 +28,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             forceOption.AddAlias("-f");
             this.AddOption(forceOption);
 
-            //Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
-            //uploadFileOption.AddAlias("-i");
-            //uploadFileOption.ExistingOnly().IsRequired = true;
-            //this.AddOption(uploadFileOption);
-
             Argument<FileInfo> inputFileArgument = new Argument<FileInfo>("romfile", "File to send to flashcard");
             inputFileArgument.ExistingOnly();
             this.AddArgument(inputFileArgument);
@@ -42,7 +37,7 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            FlashcardWriteStatus status = (FlashcardWriteStatus)e.UserState;
+            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
             progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 

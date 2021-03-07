@@ -29,7 +29,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
         public event ProgressChangedEventHandler ProgressChanged;
         
-        private FlashcardWriteStatus status = new FlashcardWriteStatus();
+        private FlashcardSendStatus status = new FlashcardSendStatus();
         StringBuilder builder = new StringBuilder();
         int processedIndex = 0;
 

@@ -70,7 +70,7 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            FlashcardWriteStatus status = (FlashcardWriteStatus)e.UserState;
+            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
             progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
