@@ -57,6 +57,7 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             
             this.AddValidator(cmd =>
             {
+                // *.o files do not allow setting size
                 if (cmd.ValueForOption<FlashcardModus>("modus") == FlashcardModus.O &&
                     cmd.ValueForOption("size") != null)
                 {
@@ -74,8 +75,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
-        // o does not allow setting size
-        // bin/lyx 128k 256k/bll 512k 512k-bll
 
         private void FlashcardProxyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FlashcardSettings settings, IConsole console)
         {

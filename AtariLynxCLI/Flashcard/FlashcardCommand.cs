@@ -13,12 +13,12 @@ using System.Text;
 
 namespace KillerApps.AtariLynx.CommandLine.Flashcard
 {
-    public class FlashCardCommand : Command
+    public class FlashcardCommand : Command
     {
         private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
         private const int DEFAULT_BAUDRATE = 115200;
 
-        public FlashCardCommand() : base("flashcard", "Lynx FlashCard related command") 
+        public FlashcardCommand() : base("flashcard", "Lynx Flashcard related command") 
         {
             this.AddCommand(new FlashcardWriteCommand());
             this.AddCommand(new FlashcardVerifyCommand());

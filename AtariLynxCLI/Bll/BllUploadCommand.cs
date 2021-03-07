@@ -18,16 +18,11 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
 
         public BllUploadCommand() : base("upload", "Upload command") 
         {
-            Option<string> portOption = new Option<string>("--portname", "Portname");
-            portOption.AddAlias("-p");
-            portOption.IsRequired = true;
-            Option<int> baudRateOption = new Option<int>(new [] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
+            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
+
             Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
             uploadFileOption.AddAlias("-i");
             uploadFileOption.ExistingOnly().IsRequired = true;
-
-            this.AddOption(portOption);
-            this.AddOption(baudRateOption);
             this.AddOption(uploadFileOption);
             this.Handler = CommandHandler.Create<string, int, FileInfo>(BllUploadHandler);
         }

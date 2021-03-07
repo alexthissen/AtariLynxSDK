@@ -17,17 +17,14 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
         
         private ProgressBar progressBar = null;
 
-        public ComLynxCommand() : base("comlynx", "ComLynx related command") {
-            Option<string> portOption = new Option<string>("--portname", "Portname");
-            portOption.AddAlias("-p");
-            portOption.IsRequired = true;
-            Option<int> baudRateOption = new Option<int>(new [] { "--baudrate", "-b" }, () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
+        public ComLynxCommand() : base("comlynx", "ComLynx related command") 
+        {
+            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
+
             Option<int> sizeOption = new Option<int>(new[] { "--size", "-s" }, () => DEFAULT_RECEIVESIZE, "Size to receive in bytes");
             Option<FileInfo> outputFileOption = new Option<FileInfo>("--output");
             outputFileOption.AddAlias("-o");
 
-            this.AddOption(portOption);
-            this.AddOption(baudRateOption);
             this.AddOption(sizeOption);
             this.AddOption(outputFileOption);
             this.Handler = CommandHandler.Create<string, int, int, FileInfo>(ComLynxReceiveHandler);

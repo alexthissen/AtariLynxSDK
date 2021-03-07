@@ -21,16 +21,8 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
         private ProgressBar progressBar = null;
 
         public BllScreenshotCommand() : base("screenshot", "Request screens shot") {
-            Option<string> portOption = new Option<string>("--portname", "Portname");
-            portOption.AddAlias("-p");
-            portOption.IsRequired = true;
-            Option<int> baudRateOption = new Option<int>(
-                new [] { "--baudrate", "-b" }, 
-                () => DEFAULT_BAUDRATE, "Baud rate for ComLynx");
+            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
             Option<FileInfo> outputFileOption = new Option<FileInfo>(new string[] { "--output", "-o" });
-
-            this.AddOption(portOption);
-            this.AddOption(baudRateOption);
             this.AddOption(outputFileOption);
             this.Handler = CommandHandler.Create<string, int, FileInfo>(BllScreenshotHandler);
         }
