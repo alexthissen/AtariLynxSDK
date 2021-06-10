@@ -23,6 +23,7 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             this.AddCommand(new FlashcardWriteCommand());
             this.AddCommand(new FlashcardVerifyCommand());
             this.AddCommand(new FlashcardSettingsCommand());
+            this.AddCommand(new EepromWriteCommand());
             this.AddCommand(CreateDirectCommand("info", "Flashcard board information", 's'));
             this.AddCommand(CreateDirectCommand("credits", "Credits", 'c'));
             this.AddCommand(CreateDirectCommand("reset", "Reset all", 'x'));

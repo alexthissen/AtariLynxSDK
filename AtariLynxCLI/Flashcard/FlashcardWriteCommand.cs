@@ -44,7 +44,7 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
         private void FlashcardWriteHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FlashcardWriteOptions writeOptions, IConsole console)
         {
             string response = String.Empty;
-            byte[] content = File.ReadAllBytes(writeOptions.Input.FullName);
+            byte[] content = File.ReadAllBytes(writeOptions.RomFile.FullName);
 
             using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
             {

@@ -16,16 +16,8 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
         public const char FLASHCARD_SYSTEMINFO = 's';
         public const char FLASHCARD_WRITE = 'w';
         public const char FLASHCARD_VERIFY = 'v';
-
-        private const string ERASE_COMPLETE_MESSAGE = "erasing memory............";
-        private const string START_UPLOAD_MESSAGE = "please start upload data";
-        private const string START_VERIFY_MESSAGE = "start upload for verify";
-
-        private const string VERIFY_FAILED_MESSAGE = "warning - verify not successfull";
-        private const string VERIFY_SUCCEEDED_MESSAGE = "verify successfull";
-        private const string UPLOAD_TERMINATE_MESSAGE = "stop upload and press anykey";
-        private const string FAILED_TERMINATOR = "= NG ===========================================================================";
-        private const string OK_TERMINATOR = "= OK ===========================================================================";
+        public const char EEPROM_WRITE = 'u';
+        public const char EEPROM_VERIFY = 'y';
 
         public event ProgressChangedEventHandler ProgressChanged;
         
@@ -57,7 +49,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                 // Wait for completion of erase action
                 if (!continueWaitHandle.WaitOne(5000))
                 {
-                    progress?.Report("Timeout during erase");
+                    progress?.Report("Timeout during erase. Try --force.");
                     if (!force) return String.Empty;
                 }
 
@@ -77,6 +69,50 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                 }
 
                 Thread.Sleep(500);
+                string text = builder.ToString();
+                return text;
+            }
+        }
+
+        public string WriteEepromFile(string portName, int baudRate, IEnumerable<byte[]> parts, bool force)
+        {
+            using (SerialPort port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One))
+            {
+                foreach (byte[] content in parts)
+                {
+                    continueWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+                    status.TotalBytes = content.Length;
+                    port.DataReceived += OnDataReceived;
+
+                    if (!port.TryOpen()) return String.Empty;
+
+                    // Write operation
+                    port.WriteByte((byte)EEPROM_WRITE);
+
+                    // Wait for completion of erase action
+                    if (!continueWaitHandle.WaitOne(1000))
+                    {
+                        progress?.Report("Timeout during erase of EEPROM");
+                        if (!force) return String.Empty;
+                    }
+
+                    int bytesSent = 0;
+                    while (bytesSent < content.Length)
+                    {
+                        // Send single chunk
+                        int chunkSize = Math.Min(content.Length - bytesSent, WRITE_CHUNKSIZE);
+                        port.Write(content, bytesSent, chunkSize);
+                        bytesSent += chunkSize;
+
+                        // Report progress
+                        int percentage = (bytesSent * 100) / content.Length;
+                        status.BytesWritten = bytesSent;
+
+                        ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
+                    }
+
+                    Thread.Sleep(500);
+                }
                 string text = builder.ToString();
                 return text;
             }

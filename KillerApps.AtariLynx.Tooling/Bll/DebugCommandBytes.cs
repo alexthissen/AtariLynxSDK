@@ -15,11 +15,10 @@ namespace KillerApps.AtariLynx.Tooling.Bll
     }
 
     /* From debug.inc:
-
-    dc.w Continue		; $82
-	dc.w BRKSetRegisters	; $83,A,X,Y,S,P,PC
-	dc.w BRKWriteMem	; $84,addr,n,...
-	dc.w BRKReadMem		; $85,addr,n
-	dc.w BRKSndRegisters	; $86 
+        dc.w Continue	        ; $82
+	    dc.w BRKSetRegisters	; $83,A,X,Y,S,P,PC
+	    dc.w BRKWriteMem	    ; $84,addr,n,...
+	    dc.w BRKReadMem		    ; $85,addr,n
+	    dc.w BRKSndRegisters    ; $86 
     */
 }

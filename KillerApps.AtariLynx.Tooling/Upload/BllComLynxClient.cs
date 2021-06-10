@@ -14,6 +14,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
     {
 		private const int WRITE_TIMEOUT = 5000;
 		private const int WRITE_CHUNKSIZE = 64;
+		private const int READ_CHUNKSIZE = 64;
 		private const int BUFFER_SIZE = 256;
 		private const int RECEIVED_BYTES_THRESHOLD = 256;
 		private const int READ_TIMEOUT = 5000;
@@ -72,26 +73,28 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				if (!port.TryOpen()) return null;
 
 				// Write message to  
-				port.Write(messageBytes, 0, messageBytes.Length);
-				
-				// Read back same bytes because RX and TX are connected
-				port.Read(messageBytes, 0, messageBytes.Length);
-
-				// Now Lynx should send back palette of 32 bytes and video memory 
-				while (totalBytes < data.Length) // or timeout
+				try
 				{
-                    try
-                    {
-						totalBytes += port.Read(data, totalBytes, Math.Min(data.Length - totalBytes, 64));
-                    }
-					catch (TimeoutException)
-                    {
-						Console.WriteLine("Timeout waiting for response.");
-						return null;
-                    }
-				}
+					port.Write(messageBytes, 0, messageBytes.Length);
 
-				if (port.IsOpen) port.Close();
+					// Read back same bytes because RX and TX are connected
+					port.Read(messageBytes, 0, messageBytes.Length);
+
+					// Now Lynx should send back palette of 32 bytes and video memory 
+					while (totalBytes < data.Length) // or timeout
+					{
+						totalBytes += port.Read(data, totalBytes, Math.Min(data.Length - totalBytes, READ_CHUNKSIZE));
+					}
+				}
+				catch (TimeoutException)
+				{
+					Console.WriteLine("Timeout waiting for response.");
+					return null;
+				}
+				finally
+				{
+					if (port.IsOpen) port.Close();
+				}
 				return data;
 			}
 		}

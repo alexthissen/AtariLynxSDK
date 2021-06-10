@@ -20,7 +20,7 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
 
         private ProgressBar progressBar = null;
 
-        public BllScreenshotCommand() : base("screenshot", "Request screens shot") {
+        public BllScreenshotCommand() : base("screenshot", "Request screenshot") {
             this.AddSerialPortOptions(DEFAULT_BAUDRATE);
             Option<FileInfo> outputFileOption = new Option<FileInfo>(new string[] { "--output", "-o" });
             this.AddOption(outputFileOption);
@@ -38,8 +38,7 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
                 screenshotData = client.TakeScreenshot(portName, baudRate);
                 if (screenshotData == null)
                 {
-                    Console.WriteLine("Screenshot failed");
-                    return;
+                    throw new CommandException("Screenshot data not received");
                 }
             }
 

@@ -3,7 +3,12 @@ using KillerApps.AtariLynx.CommandLine.ComLynx;
 using KillerApps.AtariLynx.CommandLine.Flashcard;
 using System;
 using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace KillerApps.AtariLynx.CommandLine
@@ -17,11 +22,63 @@ namespace KillerApps.AtariLynx.CommandLine
             rootCommand.AddCommand(new BllCommand());
             rootCommand.AddCommand(new FlashcardCommand());
 
+            // Show commandline help unless a subcommand was used.
+            rootCommand.Handler = CommandHandler.Create<IHelpBuilder>(help =>
+            {
+                help.Write(rootCommand);
+                return 1;
+            });
+
             var verboseOption = new Option<bool>("--verbose", "Show verbose output");
             verboseOption.AddAlias("-v");
             rootCommand.TryAddGlobalOption(verboseOption);
 
-            return await rootCommand.InvokeAsync(args);
+            var builder = new CommandLineBuilder(rootCommand);
+            builder.UseHelp();
+            builder.UseVersionOption();
+            builder.UseDebugDirective();
+            builder.UseParseErrorReporting();
+            builder.ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated);
+
+            builder.CancelOnProcessTermination();
+            builder.UseExceptionHandler(HandleException);
+
+            //builder.UseMiddleware(DefaultOptionsMiddleware);
+
+            var parser = builder.Build();
+            return await parser.InvokeAsync(args);
+
+            //return await rootCommand.InvokeAsync(args);
+        }
+
+        private static void HandleException(Exception exception, InvocationContext context)
+        {
+            context.Console.ResetTerminalForegroundColor();
+            context.Console.SetTerminalForegroundColor(ConsoleColor.Red);
+
+            if (exception is TargetInvocationException tie && tie.InnerException is object)
+            {
+                exception = tie.InnerException;
+            }
+
+            if (exception is OperationCanceledException)
+            {
+                context.Console.Error.WriteLine("Operation has been canceled.");
+            }
+            else if (exception is CommandException command)
+            {
+                context.Console.Error.WriteLine($"Command '{context.ParseResult.CommandResult.Command.Name}' failed:");
+                context.Console.Error.WriteLine($"\t{command.Message}");
+
+                if (command.InnerException != null)
+                {
+                    context.Console.Error.WriteLine();
+                    context.Console.Error.WriteLine(command.InnerException.ToString());
+                }
+            }
+
+            context.Console.ResetTerminalForegroundColor();
+            context.ResultCode = 1;
         }
     }
 }
