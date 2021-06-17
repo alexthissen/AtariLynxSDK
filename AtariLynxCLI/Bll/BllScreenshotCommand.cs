@@ -2,6 +2,7 @@
 using KillerApps.AtariLynx.Tooling.Conversion;
 using Kurukuru;
 using ShellProgressBar;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -42,7 +43,7 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
                 }
             }
 
-            Spinner.Start("Converting image...", spinner => {
+            Kurukuru.Spinner.Start("Converting image...", spinner => {
                 BitmapConverter conv = new BitmapConverter();
                 Bitmap bitmap = conv.ConvertToBitmap(screenshotData);
                 bitmap.Save(output.FullName);

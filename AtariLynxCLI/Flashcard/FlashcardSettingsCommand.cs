@@ -45,9 +45,10 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             rateOption.FromAmong(Baudrates.Keys.Select(k => k.ToString()).ToArray());
             this.AddOption(rateOption);
 
-            Option<string> modusOption = new Option<string>("--modus", "Modus");
+            Option<FlashcardModus> modusOption = new Option<FlashcardModus>("--modus", "Modus");
             modusOption.AddAlias("-m");
-            modusOption.FromAmong("lnx", "bin", "lyx", "o");
+            //modusOption.FromAmong("lnx", "bin", "lyx", "o");
+            //modusOption.AddSuggestions("lnx", "bin");
             this.AddOption(modusOption);
 
             Option<string> sizeOption = new Option<string>("--size", "Size of roms");
@@ -58,8 +59,9 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             this.AddValidator(cmd =>
             {
                 // *.o files do not allow setting size
-                if (cmd.ValueForOption<FlashcardModus>("modus") == FlashcardModus.O &&
-                    cmd.ValueForOption("size") != null)
+                //if (cmd.ValueForOption<FlashcardModus>("modus") == FlashcardModus.O &&
+                //    cmd.ValueForOption("size") != null)
+                if (cmd.Children.Contains("modus") && cmd.Children.Contains("size"))
                 {
                     return "You cannot specify a size for '*.o' files";
                 }
@@ -74,7 +76,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
             progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
         }
-
 
         private void FlashcardProxyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FlashcardSettings settings, IConsole console)
         {
@@ -109,9 +110,12 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
             if (global.Verbose)
             {
-                var color = Console.ForegroundColor;
+                //var color = Console.ForegroundColor;
+                //console.ResetTerminalForegroundColor();
+                console.SetTerminalForegroundColor(ConsoleColor.Yellow);
                 //Console.ForegroundColor = ConsoleColor.DarkGreen;
                 console.Out.Write(response);
+                console.ResetTerminalForegroundColor();
                 //Console.ForegroundColor = color;
             }
             else

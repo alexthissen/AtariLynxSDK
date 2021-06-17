@@ -131,6 +131,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                 // Write operation 
                 port.WriteByte((byte)FLASHCARD_VERIFY);
 
+                // "start upload for verify"
                 Thread.Sleep(1000);
 
                 int bytesSent = 0;
@@ -144,7 +145,6 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                     // Report progress
                     int percentage = (bytesSent * 100) / content.Length;
                     status.BytesWritten = bytesSent;
-
                     ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                 }
 
@@ -200,6 +200,24 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
         private void HandleLineInput(string line)
         {
+            //if (line.Equals("= OK ==========================================================================="))
+            if (line.Equals("please start upload data"))
+            {
+                continueWaitHandle.Set();
+            }
+
+            // "warning - verify not successfull"
+            // "= NG ==========================================================================="
+
+            // "stop upload and press anykey"
+            // "= OK ==========================================================================="
+
+            // "verify successfull"
+            if (line.Equals("verify successfull") || line.Equals("warning - verify not successfull"))
+            {
+                waitVerifyCompleted.Set();
+            }
+
             progress?.Report(line);
         }
     }

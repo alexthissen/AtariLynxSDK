@@ -21,6 +21,8 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
         public FlashcardVerifyCommand() : base("verify", "Verify ROM on Flashcard")
         {
+            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
+
             Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
             uploadFileOption.AddAlias("-i");
             uploadFileOption.ExistingOnly().IsRequired = true;

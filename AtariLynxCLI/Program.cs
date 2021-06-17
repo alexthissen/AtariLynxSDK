@@ -31,18 +31,23 @@ namespace KillerApps.AtariLynx.CommandLine
 
             var verboseOption = new Option<bool>("--verbose", "Show verbose output");
             verboseOption.AddAlias("-v");
-            rootCommand.TryAddGlobalOption(verboseOption);
+            rootCommand.AddGlobalOption(verboseOption);
 
-            var builder = new CommandLineBuilder(rootCommand);
-            builder.UseHelp();
-            builder.UseVersionOption();
-            builder.UseDebugDirective();
-            builder.UseParseErrorReporting();
-            builder.ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated);
+            var builder = new CommandLineBuilder(rootCommand)
+                .UseVersionOption()
+                .UseHelp()
+                .UseParseDirective()
+                .UseDebugDirective()
+                .UseEnvironmentVariableDirective()
+                .UseSuggestDirective()
+                .RegisterWithDotnetSuggest()
+                .UseTypoCorrections()
+                .UseParseErrorReporting()
+                .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
+                .CancelOnProcessTermination()
+                .UseExceptionHandler(HandleException);
 
-            builder.CancelOnProcessTermination();
-            builder.UseExceptionHandler(HandleException);
-
+            //builder.UseDefaults();
             //builder.UseMiddleware(DefaultOptionsMiddleware);
 
             var parser = builder.Build();
@@ -78,7 +83,15 @@ namespace KillerApps.AtariLynx.CommandLine
             }
 
             context.Console.ResetTerminalForegroundColor();
-            context.ResultCode = 1;
+            context.ExitCode = 1;
         }
     }
 }
+
+//private static Command WithHandler(this Command command, string methodName)
+//{
+//    var method = typeof(Program).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
+//    var handler = CommandHandler.Create(method!);
+//    command.Handler = handler;
+//    return command;
+//}
