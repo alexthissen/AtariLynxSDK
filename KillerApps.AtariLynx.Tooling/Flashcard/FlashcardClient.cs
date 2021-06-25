@@ -26,7 +26,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
         int processedIndex = 0;
 
         private IProgress<string> progress { get; }
-        EventWaitHandle continueWaitHandle, waitVerifyCompleted;
+        EventWaitHandle continueWaitHandle;
 
         public FlashcardClient(IProgress<string> progress = null)
         {
@@ -78,25 +78,28 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
         {
             using (SerialPort port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One))
             {
+                continueWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+                port.DataReceived += OnDataReceived;
+
+                if (!port.TryOpen()) return String.Empty;
+
+                // Write operation
+                port.WriteByte((byte)EEPROM_WRITE);
+
+                // Wait for completion of erase action
+                if (!continueWaitHandle.WaitOne(1000))
+                {
+                    progress?.Report("Timeout during erase of EEPROM");
+                    if (!force) return String.Empty;
+                }
+
                 foreach (byte[] content in parts)
                 {
-                    continueWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
-                    status.TotalBytes = content.Length;
-                    port.DataReceived += OnDataReceived;
-
-                    if (!port.TryOpen()) return String.Empty;
-
-                    // Write operation
-                    port.WriteByte((byte)EEPROM_WRITE);
-
-                    // Wait for completion of erase action
-                    if (!continueWaitHandle.WaitOne(1000))
-                    {
-                        progress?.Report("Timeout during erase of EEPROM");
-                        if (!force) return String.Empty;
-                    }
+                    Thread.Sleep(1000);
 
                     int bytesSent = 0;
+                    status.TotalBytes = content.Length;
+
                     while (bytesSent < content.Length)
                     {
                         // Send single chunk
@@ -110,9 +113,9 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
                         ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                     }
-
-                    Thread.Sleep(500);
                 }
+
+                Thread.Sleep(1000);
                 string text = builder.ToString();
                 return text;
             }
@@ -122,7 +125,6 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
         {
             using (SerialPort port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One))
             {
-                waitVerifyCompleted = new EventWaitHandle(false, EventResetMode.ManualReset);
                 status.TotalBytes = content.Length;
                 port.DataReceived += OnDataReceived;
                 
@@ -148,7 +150,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                     ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                 }
 
-                if (!waitVerifyCompleted.WaitOne(5000))
+                if (!continueWaitHandle.WaitOne(5000))
                 {
                     progress?.Report("Timeout waiting for verify to complete");
                 }
@@ -200,27 +202,39 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
         private void HandleLineInput(string line)
         {
-            //if (line.Equals("= OK ==========================================================================="))
-            if (line.Equals("please start upload data"))
+            if (line.Equals(FlashcardMessages.StartUpload))
             {
                 continueWaitHandle.Set();
             }
-
-            // "warning - verify not successfull"
-            // "= NG ==========================================================================="
-
-            // "stop upload and press anykey"
-            // "= OK ==========================================================================="
-
-            // "verify successfull"
+            
             if (line.Equals("verify successfull") || line.Equals("warning - verify not successfull"))
             {
-                waitVerifyCompleted.Set();
+                continueWaitHandle.Set();
             }
 
             progress?.Report(line);
         }
     }
+
+    public static class FlashcardMessages
+    {
+        public const string NG = "= NG ===========================================================================";
+        public const string OK = "= OK ===========================================================================";
+        public const string StartUpload = "please start upload data";
+        public const string StopUpload = "stop upload and press anykey";
+        public const string VerifyFailed = "warning - verify not successfull";
+        public const string VerifySuccess = "verify successfull";
+        public const string EepromUploadPart1 = "address(hex) 000 - 1ff";
+        public const string EepromUploadPart2 = "address(hex) 200 - 3ff(cancel press anykey)";
+        public const string EepromUploadPart3 = "address(hex) 400 - 5ff(cancel press anykey)";
+        public const string EepromUploadPart4 = "address(hex) 600 - 7ff(cancel press anykey)";
+    }
+
+    //public class FlashcardStatus
+    //{
+    //    public string Description { get; set; }
+    //    public 
+    //}
 }
 
 /*

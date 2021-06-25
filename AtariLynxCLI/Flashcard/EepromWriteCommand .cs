@@ -70,7 +70,7 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
                 // Add event handlers
                 proxy.ProgressChanged += OnProgressChanged;
 
-                IEnumerable<byte[]> parts = content.Slices(4, false);
+                IEnumerable<byte[]> parts = content.Slices(512, false);
 
                 // Actual writing to card
                 response = proxy.WriteEepromFile(serialPortOptions.PortName, serialPortOptions.Baudrate, parts, true);
