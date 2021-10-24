@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Ports;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -18,6 +19,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
         public const char FLASHCARD_VERIFY = 'v';
         public const char EEPROM_WRITE = 'u';
         public const char EEPROM_VERIFY = 'y';
+        public const char EEPROM_READ = 'r';
 
         public event ProgressChangedEventHandler ProgressChanged;
         
@@ -121,10 +123,49 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
             }
         }
 
+        public string ReadEepromFile(string portName, int baudRate, int size)
+        {
+            using (SerialPort port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One))
+            {
+                continueWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+                byte[] eepromBuffer = new byte[size];
+                int bytesReceived = 0;
+
+                port.DataReceived += (sender, args) => 
+                {
+                    SerialPort port = (SerialPort)sender;
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    int bytesRead = port.Read(buffer, 0, BUFFER_SIZE);
+                    eepromBuffer.Concat(buffer.Take(bytesRead));
+                    bytesReceived += bytesRead;
+                };
+
+                if (!port.TryOpen()) return String.Empty;
+
+                // Read operation
+                port.WriteByte((byte)EEPROM_READ);
+
+                while (bytesReceived < size)
+                {
+                    // Report progress
+                    int percentage = (bytesReceived * 100) / size;
+                    status.BytesWritten = bytesReceived;
+
+                    ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
+                    Thread.Sleep(100);
+                }
+
+                string text = eepromBuffer.ToString();
+                return text;
+            }
+        }
+
         public string VerifyRomFile(string portName, int baudRate, byte[] content)
         {
             using (SerialPort port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One))
             {
+                continueWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+
                 status.TotalBytes = content.Length;
                 port.DataReceived += OnDataReceived;
                 
@@ -207,7 +248,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                 continueWaitHandle.Set();
             }
             
-            if (line.Equals("verify successfull") || line.Equals("warning - verify not successfull"))
+            if (line.Equals(FlashcardMessages.VerifyFailed) || line.Equals(FlashcardMessages.VerifySuccess))
             {
                 continueWaitHandle.Set();
             }
@@ -215,26 +256,6 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
             progress?.Report(line);
         }
     }
-
-    public static class FlashcardMessages
-    {
-        public const string NG = "= NG ===========================================================================";
-        public const string OK = "= OK ===========================================================================";
-        public const string StartUpload = "please start upload data";
-        public const string StopUpload = "stop upload and press anykey";
-        public const string VerifyFailed = "warning - verify not successfull";
-        public const string VerifySuccess = "verify successfull";
-        public const string EepromUploadPart1 = "address(hex) 000 - 1ff";
-        public const string EepromUploadPart2 = "address(hex) 200 - 3ff(cancel press anykey)";
-        public const string EepromUploadPart3 = "address(hex) 400 - 5ff(cancel press anykey)";
-        public const string EepromUploadPart4 = "address(hex) 600 - 7ff(cancel press anykey)";
-    }
-
-    //public class FlashcardStatus
-    //{
-    //    public string Description { get; set; }
-    //    public 
-    //}
 }
 
 /*

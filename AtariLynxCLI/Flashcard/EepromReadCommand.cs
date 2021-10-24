@@ -1,0 +1,74 @@
+﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
+using KillerApps.AtariLynx.Tooling.ComLynx;
+using KillerApps.AtariLynx.Tooling.Flashcard;
+using Kurukuru;
+using ShellProgressBar;
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
+using System.ComponentModel;
+using System.IO;
+using System.Text;
+
+namespace KillerApps.AtariLynx.CommandLine.Flashcard
+{
+    public class EepromReadCommand : Command
+    {
+        private const int DEFAULT_BAUDRATE = 115200;
+        private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
+        private ProgressBar progressBar = null;
+
+        public EepromReadCommand() : base("eeprom-read", "Read from EEPROM of flashcard")
+        {
+            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
+
+            Option<bool> forceOption = new Option<bool>("--force");
+            forceOption.AddAlias("-f");
+            this.AddOption(forceOption);
+
+            Option<int> sizeOption = new Option<int>(new[] { "--size", "-s" },
+                "Size of EEPROM content.");
+            sizeOption.FromAmong("128", "512", "2048");
+            this.AddOption(sizeOption);
+
+            Option<FileInfo> outputFileOption = new Option<FileInfo>("file", "Output file for binary EEPROM content");
+            this.AddOption(outputFileOption);
+            
+            this.AddValidator(result => { return null; });
+            this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, EepromReadOptions, IConsole>(EepromReadHandler);
+        }
+
+        private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
+            progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
+        }
+
+        private void EepromReadHandler(GlobalOptions global, SerialPortOptions serialPortOptions, EepromReadOptions readOptions, IConsole console)
+        {
+            string response = String.Empty;
+
+            using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
+            {
+                Progress<string> progress = new Progress<string>(message => {
+                    if (global.Verbose) progressBar.WriteLine(message);
+                });
+                FlashcardClient proxy = new FlashcardClient(progress);
+
+                // Add event handlers
+                proxy.ProgressChanged += OnProgressChanged;
+
+                // Actual writing to card
+                response = proxy.ReadEepromFile(serialPortOptions.PortName, serialPortOptions.Baudrate, readOptions.Size);
+            }
+
+            if (global.Verbose)
+            {
+                console.Out.Write("Response from flashcard:");
+                console.Out.Write(response);
+            }
+        }
+    }
+}

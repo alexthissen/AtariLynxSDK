@@ -2,7 +2,10 @@
   "profiles": {
     "AtariLynxCLI": {
       "commandName": "Project",
-      "commandLineArgs": "reset -p 6"
+      "commandLineArgs": "flashcard eeprom-read -p COM4 -s 128 --verbose",
+      "environmentVariables": {
+        "DOTNET_COMMANDLINE_DEBUG_PROCESSES": "atarilynx"
+      }
     }
   }
 }

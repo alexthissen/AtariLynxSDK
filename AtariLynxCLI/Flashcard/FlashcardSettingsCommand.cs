@@ -1,7 +1,4 @@
-﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
-using KillerApps.AtariLynx.Tooling.ComLynx;
-using KillerApps.AtariLynx.Tooling.Flashcard;
-using ShellProgressBar;
+﻿using KillerApps.AtariLynx.Tooling.Flashcard;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -31,7 +28,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             { "512k-bll", 'k' }
         };
 
-        private ProgressBar progressBar = null;
         private const int DEFAULT_BAUDRATE = 115200;
 
         public FlashcardSettingsCommand() : base("set", "Flashcard settings") 
@@ -69,12 +65,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             });
 
             this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FlashcardSettings, IConsole>(FlashcardProxyHandler);
-        }
-
-        private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
-            progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
         private void FlashcardProxyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FlashcardSettings settings, IConsole console)

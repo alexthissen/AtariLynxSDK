@@ -1,5 +1,5 @@
 ﻿using KillerApps.AtariLynx.Tooling.ComLynx;
-using ShellProgressBar;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -14,10 +14,10 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
     {
         private const int DEFAULT_RECEIVESIZE = 65536 * 8;
         private const int DEFAULT_BAUDRATE = 62500;
-        
-        private ProgressBar progressBar = null;
 
-        public ComLynxCommand() : base("comlynx", "ComLynx related command") 
+        private ProgressTask receiveTask = null;
+
+        public ComLynxCommand() : base("comlynx", "ComLynx related command")
         {
             this.AddSerialPortOptions(DEFAULT_BAUDRATE);
 
@@ -28,35 +28,54 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
 
             this.AddOption(sizeOption);
             this.AddOption(outputFileOption);
-            this.Handler = CommandHandler.Create<string, int, int, FileInfo>(ComLynxReceiveHandler);
+            this.Handler = CommandHandler.Create<GlobalOptions, string, int, int, FileInfo>(ComLynxReceiveHandler);
         }
 
-        private void ComLynxReceiveHandler(string portName, int baudRate, int size, FileInfo output)
+        private void ComLynxReceiveHandler(GlobalOptions global, string portName, int baudRate, int size, FileInfo output)
         {
             ComLynxReceiver receiver = new ComLynxReceiver();
             receiver.ProgressChanged += OnProgressChanged;
 
-            using (progressBar = new ProgressBar(100, "Initializing"))
-            {
-                progressBar.Tick(0, $"Waiting for bytes");
+            AnsiConsole.MarkupLine("[yellow]Waiting to receive bytes from Lynx[/]...");
 
-                byte[] data = receiver.Receive(portName, baudRate, size);
-                if (data == null)
+            AnsiConsole.Progress()
+                .AutoClear(false)
+                .Columns(new ProgressColumn[]
                 {
-                    progressBar.WriteErrorLine("Download failed");
-                }
-                else
+                    new TaskDescriptionColumn(),    // Task description
+                    new ProgressBarColumn(),        // Progress bar
+                    new PercentageColumn(),         // Percentage
+                    new DownloadedColumn(),         // Upload
+                    new RemainingTimeColumn(),      // Remaining time
+                    new SpinnerColumn() { Spinner = Spinner.Known.Arc }            // Spinner
+                })
+                .Start(ctx =>
                 {
-                    progressBar.Tick(100, $"Download completed");
-                    File.WriteAllBytes(output.FullName, data);
-                }
-            }
+                    receiveTask = ctx.AddTask("Writing to flashcard", autoStart: true);
+                    byte[] data = receiver.Receive(portName, baudRate, size);
+
+                    if (data == null)
+                    {
+                        AnsiConsole.MarkupLine("[red]Download failed[/]...");
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[green]Download completed[/]...");
+                        receiveTask.Value = receiveTask.MaxValue;
+                        if (global.Verbose)
+                        {
+                            AnsiConsole.MarkupLine($"[yellow]Writing to {output.FullName}[/]...");
+                        }
+                        File.WriteAllBytes(output.FullName, data);
+                    }
+                });
         }
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             ComLynxReceiveStatus status = (ComLynxReceiveStatus)e.UserState;
-            progressBar.Tick(e.ProgressPercentage, $"Received {status.BytesRead}/{status.TotalBytesToRead}");
+            receiveTask.MaxValue = status.TotalBytesToRead;
+            receiveTask.Value = status.BytesRead;
         }
     }
 }

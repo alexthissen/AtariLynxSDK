@@ -1,7 +1,4 @@
-﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
-using KillerApps.AtariLynx.Tooling.ComLynx;
-using KillerApps.AtariLynx.Tooling.Flashcard;
-using ShellProgressBar;
+﻿using KillerApps.AtariLynx.Tooling.Flashcard;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -17,7 +14,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
     public class FlashcardWriteCommand : Command
     {
         private const int DEFAULT_BAUDRATE = 115200;
-        private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
         private ProgressTask writeTask = null;
 
         public FlashcardWriteCommand() : base("write", "Write to flashcard")
@@ -38,8 +34,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
-            //writeTask.Increment(e.ProgressPercentage - writeTask.Value); //, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
-            writeTask.MaxValue = status.TotalBytes;
             writeTask.Value = status.BytesWritten;
         }
 
@@ -56,14 +50,17 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
                 {
                     new TaskDescriptionColumn(),    // Task description
                     new ProgressBarColumn(),        // Progress bar
-                    //new PercentageColumn(),         // Percentage
+                    new PercentageColumn(),         // Percentage
                     new DownloadedColumn(),         // Upload
-                    //new RemainingTimeColumn(),      // Remaining time
-                    new SpinnerColumn() { Spinner = Spinner.Known.Default }            // Spinner
+                    new RemainingTimeColumn(),      // Remaining time
+                    new SpinnerColumn() {           // Spinner
+                        Spinner = Spinner.Known.Default
+                    }
                 })
                 .Start(ctx =>
                 {
                     writeTask = ctx.AddTask("Writing to flashcard", autoStart: false);
+                    writeTask.MaxValue = content.Length;
                     
                     Progress<string> progress = new Progress<string>(message =>
                     {
