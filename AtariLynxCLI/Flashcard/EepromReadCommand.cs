@@ -1,7 +1,6 @@
 ﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
 using KillerApps.AtariLynx.Tooling.ComLynx;
 using KillerApps.AtariLynx.Tooling.Flashcard;
-using Kurukuru;
 using ShellProgressBar;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace KillerApps.AtariLynx.CommandLine.Flashcard
@@ -43,12 +43,13 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
-            progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
+            progressBar.Tick(e.ProgressPercentage, $"Reading {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
         private void EepromReadHandler(GlobalOptions global, SerialPortOptions serialPortOptions, EepromReadOptions readOptions, IConsole console)
         {
             string response = String.Empty;
+            IEnumerable<byte> data = null;
 
             using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
             {
@@ -60,14 +61,15 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
                 // Add event handlers
                 proxy.ProgressChanged += OnProgressChanged;
 
-                // Actual writing to card
-                response = proxy.ReadEepromFile(serialPortOptions.PortName, serialPortOptions.Baudrate, readOptions.Size);
+                // Actual reading to card
+                data = proxy.ReadEepromFile(serialPortOptions.PortName, serialPortOptions.Baudrate, readOptions.Size);
             }
 
             if (global.Verbose)
             {
-                console.Out.Write("Response from flashcard:");
-                console.Out.Write(response);
+                console.Out.Write("Response from flashcard:" + Environment.NewLine);
+                console.Out.Write($"[Binary data: {data.Count()} bytes]");
+                console.Out.Write(Encoding.Default.GetString(data.Skip(readOptions.Size).ToArray()));
             }
         }
     }

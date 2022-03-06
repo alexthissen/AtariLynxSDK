@@ -123,12 +123,12 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
             }
         }
 
-        public string ReadEepromFile(string portName, int baudRate, int size)
+        public IEnumerable<byte> ReadEepromFile(string portName, int baudRate, int size)
         {
             using (SerialPort port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One))
             {
                 continueWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
-                byte[] eepromBuffer = new byte[size];
+                IEnumerable<byte> eepromBuffer = new byte[0];
                 int bytesReceived = 0;
 
                 port.DataReceived += (sender, args) => 
@@ -136,11 +136,11 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                     SerialPort port = (SerialPort)sender;
                     byte[] buffer = new byte[BUFFER_SIZE];
                     int bytesRead = port.Read(buffer, 0, BUFFER_SIZE);
-                    eepromBuffer.Concat(buffer.Take(bytesRead));
+                    eepromBuffer = eepromBuffer.Concat(buffer.Take(bytesRead));
                     bytesReceived += bytesRead;
                 };
 
-                if (!port.TryOpen()) return String.Empty;
+                if (!port.TryOpen()) return null;
 
                 // Read operation
                 port.WriteByte((byte)EEPROM_READ);
@@ -154,9 +154,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                     ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                     Thread.Sleep(100);
                 }
-
-                string text = eepromBuffer.ToString();
-                return text;
+                return eepromBuffer;
             }
         }
 

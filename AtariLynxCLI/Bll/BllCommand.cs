@@ -1,5 +1,4 @@
 ﻿using KillerApps.AtariLynx.Tooling.ComLynx;
-using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
