@@ -29,8 +29,8 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
-            verifyTask.Value = status.BytesWritten;
+            FlashcardTransmitStatus status = (FlashcardTransmitStatus)e.UserState;
+            verifyTask.Value = status.BytesTransmitted;
         }
 
         private void FlashcardVerifyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FileInfo input, IConsole console)

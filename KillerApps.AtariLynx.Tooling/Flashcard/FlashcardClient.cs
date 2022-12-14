@@ -23,7 +23,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
         public event ProgressChangedEventHandler ProgressChanged;
         
-        private FlashcardSendStatus status = new FlashcardSendStatus();
+        private FlashcardTransmitStatus status = new FlashcardTransmitStatus();
         StringBuilder builder = new StringBuilder();
         int processedIndex = 0;
 
@@ -55,6 +55,8 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                     if (!force) return String.Empty;
                 }
 
+                Thread.Sleep(1000);
+
                 int bytesSent = 0;
                 while (bytesSent < content.Length)
                 {
@@ -65,7 +67,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
                     // Report progress
                     int percentage = (bytesSent * 100) / content.Length;
-                    status.BytesWritten = bytesSent;
+                    status.BytesTransmitted = bytesSent;
 
                     ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                 }
@@ -111,7 +113,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
                         // Report progress
                         int percentage = (bytesSent * 100) / content.Length;
-                        status.BytesWritten = bytesSent;
+                        status.BytesTransmitted = bytesSent;
 
                         ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                     }
@@ -149,7 +151,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
                 {
                     // Report progress
                     int percentage = (bytesReceived * 100) / size;
-                    status.BytesWritten = bytesReceived;
+                    status.BytesTransmitted = bytesReceived;
 
                     ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                     Thread.Sleep(100);
@@ -185,7 +187,7 @@ namespace KillerApps.AtariLynx.Tooling.Flashcard
 
                     // Report progress
                     int percentage = (bytesSent * 100) / content.Length;
-                    status.BytesWritten = bytesSent;
+                    status.BytesTransmitted = bytesSent;
                     ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, status));
                 }
 

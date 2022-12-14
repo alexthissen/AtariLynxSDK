@@ -2,6 +2,7 @@
 using KillerApps.AtariLynx.Tooling.ComLynx;
 using KillerApps.AtariLynx.Tooling.Flashcard;
 using ShellProgressBar;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -42,8 +43,8 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
-            progressBar.Tick(e.ProgressPercentage, $"Reading {status.BytesWritten}/{status.TotalBytes} bytes");
+            FlashcardTransmitStatus status = (FlashcardTransmitStatus)e.UserState;
+            //progressBar.Tick(e.ProgressPercentage, $"Reading {status.BytesWritten}/{status.TotalBytes} bytes");
         }
 
         private void EepromReadHandler(GlobalOptions global, SerialPortOptions serialPortOptions, EepromReadOptions readOptions, IConsole console)
@@ -51,19 +52,25 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             string response = String.Empty;
             IEnumerable<byte> data = null;
 
-            using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
+            AnsiConsole.Status().Start("Reading EEPROM", ctx =>
             {
-                Progress<string> progress = new Progress<string>(message => {
+                Progress<string> progress = new Progress<string>(message =>
+                {
                     if (global.Verbose) progressBar.WriteLine(message);
                 });
                 FlashcardClient proxy = new FlashcardClient(progress);
 
                 // Add event handlers
                 proxy.ProgressChanged += OnProgressChanged;
+                ctx.Spinner(Spinner.Known.Aesthetic);
+                ctx.SpinnerStyle(Style.Parse("green"));
 
                 // Actual reading to card
                 data = proxy.ReadEepromFile(serialPortOptions.PortName, serialPortOptions.Baudrate, readOptions.Size);
-            }
+            });
+
+            console.Out.Write(BitConverter.ToString(data.Take(readOptions.Size).ToArray()) + Environment.NewLine);
+
 
             if (global.Verbose)
             {

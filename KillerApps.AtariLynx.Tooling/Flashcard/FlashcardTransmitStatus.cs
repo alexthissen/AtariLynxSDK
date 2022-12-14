@@ -1,8 +1,8 @@
 ﻿namespace KillerApps.AtariLynx.Tooling.Flashcard
 {
-    public class FlashcardSendStatus
+    public class FlashcardTransmitStatus
     {
-        public int BytesWritten { get; set; }
+        public int BytesTransmitted { get; set; }
         public int TotalBytes { get; set; }
     }
 }

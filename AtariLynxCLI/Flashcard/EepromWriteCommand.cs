@@ -43,8 +43,8 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
-            progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesWritten}/{status.TotalBytes} bytes");
+            FlashcardTransmitStatus status = (FlashcardTransmitStatus)e.UserState;
+            progressBar.Tick(e.ProgressPercentage, $"Writing {status.BytesTransmitted}/{status.TotalBytes} bytes");
         }
 
         private string ValidateParts(ArgumentResult result) //FileInfo file, int size)
