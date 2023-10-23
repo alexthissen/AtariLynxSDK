@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.IO;
@@ -56,16 +57,16 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
             sizeOption.FromAmong(Sizes.Keys.ToArray());
             this.AddOption(sizeOption);
             
-            this.AddValidator(cmd =>
+            this.AddValidator(result =>
             {
                 // *.o files do not allow setting size
                 //if (cmd.ValueForOption<FlashcardModus>("modus") == FlashcardModus.O &&
                 //    cmd.ValueForOption("size") != null)
-                if (cmd.Children.Contains("modus") && cmd.Children.Contains("size"))
+                if (result.FindResultFor(modusOption) is not null && 
+                    result.FindResultFor(sizeOption) is not null)
                 {
-                    return "You cannot specify a size for '*.o' files";
+                    result.ErrorMessage = "You cannot specify a size for '*.o' files";
                 }
-                return null;
             });
 
             this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FlashcardSettings, IConsole>(FlashcardProxyHandler);

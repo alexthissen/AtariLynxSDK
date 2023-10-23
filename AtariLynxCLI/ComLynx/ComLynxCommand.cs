@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
@@ -24,7 +25,7 @@ namespace KillerApps.AtariLynx.CommandLine.ComLynx
             Option<int> sizeOption = new Option<int>(new[] { "--size", "-s" }, () => DEFAULT_RECEIVESIZE, "Size to receive in bytes");
             Option<FileInfo> outputFileOption = new Option<FileInfo>("--output");
             outputFileOption.AddAlias("-o");
-            outputFileOption.AddSuggestions("output");
+            //outputFileOption.AddSuggestions("output");
 
             this.AddOption(sizeOption);
             this.AddOption(outputFileOption);

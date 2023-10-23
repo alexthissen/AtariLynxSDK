@@ -7,6 +7,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -22,12 +23,8 @@ namespace KillerApps.AtariLynx.CommandLine
             rootCommand.AddCommand(new BllCommand());
             rootCommand.AddCommand(new FlashcardCommand());
 
-            // Show commandline help unless a subcommand was used.
-            rootCommand.Handler = CommandHandler.Create<IHelpBuilder>(help =>
-            {
-                help.Write(rootCommand);
-                return 1;
-            });
+            // Show command-line help unless a subcommand was used.
+            rootCommand.Handler = CommandHandler.Create(() => rootCommand.Invoke("-h"));
 
             var verboseOption = new Option<bool>("--verbose", "Show verbose output");
             verboseOption.AddAlias("-v");
@@ -37,13 +34,14 @@ namespace KillerApps.AtariLynx.CommandLine
                 .UseVersionOption()
                 .UseHelp()
                 .UseParseDirective()
-                .UseDebugDirective()
+                //.UseDebugDirective()
                 .UseEnvironmentVariableDirective()
                 .UseSuggestDirective()
                 .RegisterWithDotnetSuggest()
                 .UseTypoCorrections()
                 .UseParseErrorReporting()
-                .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
+                // Removed from beta1
+                //.ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated) 
                 .CancelOnProcessTermination()
                 .UseExceptionHandler(HandleException);
 

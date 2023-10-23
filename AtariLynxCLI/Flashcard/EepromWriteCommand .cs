@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.IO;
@@ -35,10 +36,9 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
 
             Argument<FileInfo> inputFileArgument = new Argument<FileInfo>("file", "File with binary EEPROM content");
             inputFileArgument.ExistingOnly();
-            inputFileArgument.AddValidator(result => { return ValidateParts(result); });
-            this.AddArgument(inputFileArgument);
+            //inputFileArgument.AddValidator(result => { return ValidateParts(result); });
             
-            this.AddValidator(result => { return null; });
+            this.AddArgument(inputFileArgument);
             this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, EepromWriteOptions, IConsole>(EepromWriteHandler);
         }
 
