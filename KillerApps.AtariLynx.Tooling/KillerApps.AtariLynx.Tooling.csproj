@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-    <PackageReference Include="System.IO.Ports" Version="4.7.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0-rc.2.23479.14" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0-rc.2.23479.6" />
   </ItemGroup>
 
 </Project>
