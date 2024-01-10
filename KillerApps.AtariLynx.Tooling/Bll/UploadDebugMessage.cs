@@ -28,7 +28,8 @@ namespace KillerApps.AtariLynx.Tooling.Bll
             byte[] bytes = new byte[6] { 
                 (byte)DebugCommandBytes.Header, 
                 (byte)'P',
-                (byte)(LoadAddress >> 8), (byte)(LoadAddress & 0xff), // First HI, then LO seems to work
+		        (byte)(LoadAddress >> 8), 
+		        (byte)(LoadAddress & 0xff), // First HI, then LO seems to work
                 (byte)((Length >> 8) ^ 0xff),
                 (byte)((Length & 0xff) ^ 0xff)
             };

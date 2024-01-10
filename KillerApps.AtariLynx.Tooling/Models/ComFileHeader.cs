@@ -11,7 +11,7 @@ namespace KillerApps.AtariLynx.Tooling.Models
 {
     public struct ComFileHeader
     {
-        public const int HEADER_SIZE = 10; 
+        public const ushort HEADER_SIZE = 10; 
         public const string BS93_SIGNATURE = "BS93";
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
