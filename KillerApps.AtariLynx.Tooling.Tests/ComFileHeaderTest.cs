@@ -14,7 +14,7 @@ namespace KillerApps.AtariLynx.Tooling.Tests
     {
         public const string ComFilePath = @"minimalcomfile.bin";
         public const ushort LoadAddress = 0x0200;
-        public const ushort ObjectSize = 0x12D1;
+        public const ushort ObjectSizeWithHeader = 0x12D1;
 
         private byte[] comFileHeaderBuffer;
 
@@ -35,8 +35,8 @@ namespace KillerApps.AtariLynx.Tooling.Tests
             ushort size = 0x12D1;
 
             ComFileHeader header = new ComFileHeader(address, size);
-            Assert.AreEqual(address, header.LoadAddress);
-            Assert.AreEqual(size, header.ObjectSize);
+            Assert.AreEqual(LoadAddress, header.LoadAddress);
+            Assert.AreEqual(ObjectSizeWithHeader - ComFileHeader.HEADER_SIZE, header.ObjectSize);
         }
 
         [TestMethod]
@@ -45,15 +45,15 @@ namespace KillerApps.AtariLynx.Tooling.Tests
             ComFileHeader header = ComFileHeader.FromBytes(comFileHeaderBuffer);
             Assert.AreEqual(0x80, header.MagicBytes[0]);
             Assert.AreEqual(0x08, header.MagicBytes[1]);
-            Assert.AreEqual(0x0200, header.LoadAddress);
-            Assert.AreEqual(0x12D1, header.ObjectSize);
+            Assert.AreEqual(LoadAddress, header.LoadAddress);
+            Assert.AreEqual(ObjectSizeWithHeader - ComFileHeader.HEADER_SIZE, header.ObjectSize);
             Assert.AreEqual("BS93", Encoding.ASCII.GetString(header.Bs93Signature));
         }
 
         [TestMethod]
         public void CanSerializeHeader()
         {
-            ComFileHeader header = new ComFileHeader(LoadAddress, ObjectSize);
+            ComFileHeader header = new ComFileHeader(LoadAddress, ObjectSizeWithHeader);
             byte[] data = header.ToBytes();
 
             Assert.AreEqual(ComFileHeader.HEADER_SIZE, Marshal.SizeOf(typeof(ComFileHeader)), "COM header size should be 10");

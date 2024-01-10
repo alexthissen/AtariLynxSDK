@@ -113,7 +113,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
 		protected void UploadCore(string portName, ComFileHeader header, byte[] program, int offset, int count, int baudRate)
         {
-			UploadDebugMessage message = new UploadDebugMessage(header.LoadAddress, (ushort)(header.ObjectSize - ComFileHeader.HEADER_SIZE));
+			UploadDebugMessage message = new UploadDebugMessage(header.LoadAddress, (ushort)(header.ObjectSize));
 
 			using (SerialPort port = new SerialPort(portName, baudRate, Parity.Even, 8, StopBits.One))
 			{
@@ -127,16 +127,16 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				port.Write(messageBytes, 0, messageBytes.Length);
 
 				int bytesSent = 0;
-				while (bytesSent < header.ObjectSize - ComFileHeader.HEADER_SIZE)
+				while (bytesSent < header.ObjectSize)
 				{
 					// Send single chunk
-					int chunkSize = Math.Min(header.ObjectSize - ComFileHeader.HEADER_SIZE - bytesSent, WRITE_CHUNKSIZE);
+					int chunkSize = Math.Min(header.ObjectSize - bytesSent, WRITE_CHUNKSIZE);
 					port.Write(program, offset + bytesSent, chunkSize);
 					bytesSent += chunkSize;
 
 					// Report progress
-					int percentage = (bytesSent * 100) / header.ObjectSize - ComFileHeader.HEADER_SIZE;
-					ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, chunkSize));
+					int percentage = (bytesSent * 100) / header.ObjectSize;
+					ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, bytesSent));
 				}
 
 				if (port.IsOpen) port.Close();

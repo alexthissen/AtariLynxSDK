@@ -34,10 +34,10 @@ namespace KillerApps.AtariLynx.Tooling.Models
             get { return BinaryPrimitives.ReverseEndianness(LoadAddressRaw); }
             set { LoadAddressRaw = BinaryPrimitives.ReverseEndianness(value); }
         }
-        public ushort ObjectSize
+        public int ObjectSize
         {
-            get { return BinaryPrimitives.ReverseEndianness(ObjectSizeRaw); }
-            set { ObjectSizeRaw = BinaryPrimitives.ReverseEndianness(value); }
+            get { return BinaryPrimitives.ReverseEndianness(ObjectSizeRaw) - 10; }
+            set { ObjectSizeRaw = (ushort)(BinaryPrimitives.ReverseEndianness(value) + 10); }
         }
 
         public static ComFileHeader FromBytes(byte[] data)

@@ -2,7 +2,7 @@
   "profiles": {
     "AtariLynxCLI": {
       "commandName": "Project",
-      "commandLineArgs": "reset -p 6"
+      "commandLineArgs": "bll upload -p COM8 -b 9600 -i .\\fire.o"
     }
   }
 }
