@@ -31,7 +31,7 @@ namespace KillerApps.AtariLynx.Tooling.Bll
 		        (byte)(LoadAddress >> 8), 
 		        (byte)(LoadAddress & 0xff), // First HI, then LO seems to work
                 (byte)((Length >> 8) ^ 0xff),
-                (byte)((Length & 0xff) ^ 0xff)
+                (byte)((Length & 0xff) ^ 0xff),
             };
             return bytes;
         }

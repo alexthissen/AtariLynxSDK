@@ -4,20 +4,31 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>KillerApps.AtariLynx.CommandLine</RootNamespace>
-    <PublishSingleFile>true</PublishSingleFile>
+    <PublishSingleFile>false</PublishSingleFile>
     <SelfContained>false</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishTrimmed>false</PublishTrimmed>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
-    <AssemblyName>atarilynx</AssemblyName>
+    <AssemblyName>atarilynxcli</AssemblyName>
+
+    <Description>Atari Lynx Command-Line Interface.</Description>
+    <RepositoryUrl>https://github.com/alexthissen/atarilynxsdk</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <ToolCommandName>atarilynx</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Version>0.3.0</Version>
+    <Id>atarilynxcli</Id>
+    <PackageOutputPath>./nuget</PackageOutputPath>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <FileVersion>0.3.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Kurukuru" Version="1.4.2" />
     <PackageReference Include="Spectre.Console" Version="0.47.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-	<PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
+	  <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="ShellProgressBar" Version="5.2.0" />
   </ItemGroup>
 

@@ -1,7 +1,6 @@
 ﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
 using KillerApps.AtariLynx.Tooling.ComLynx;
 using KillerApps.AtariLynx.Tooling.Flashcard;
-using Kurukuru;
 using ShellProgressBar;
 using System;
 using System.Collections.Generic;

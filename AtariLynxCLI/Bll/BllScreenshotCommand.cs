@@ -2,7 +2,6 @@
 using KillerApps.AtariLynx.Tooling.Conversion;
 using Kurukuru;
 using ShellProgressBar;
-using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
