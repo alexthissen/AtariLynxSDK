@@ -1,9 +1,11 @@
 ﻿using KillerApps.AtariLynx.Tooling.ComLynx;
-using ShellProgressBar;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.NamingConventionBinder;
 using System.ComponentModel;
 using System.IO;
@@ -15,34 +17,48 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
     {
         private const int DEFAULT_BAUDRATE = 62500;
 
-        private ProgressBar progressBar = null;
+//        private ProgressBar progressBar = null;
 
-        public BllUploadCommand() : base("upload", "Upload command") 
+        public BllUploadCommand() : base("upload", "Upload command")
         {
             this.AddSerialPortOptions(DEFAULT_BAUDRATE);
 
             Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
             uploadFileOption.AddAlias("-i");
+            uploadFileOption.Description = "File to upload";
             uploadFileOption.ExistingOnly().IsRequired = true;
             this.AddOption(uploadFileOption);
-            this.Handler = CommandHandler.Create<string, int, FileInfo>(BllUploadHandler);
+            this.Handler = CommandHandler.Create<string, int, FileInfo, InvocationContext>(BllUploadHandler);
         }
 
-        private void BllUploadHandler(string portName, int baudRate, FileInfo input)
+        private void BllUploadHandler(string portName, int baudRate, FileInfo input, InvocationContext context)
         {
-            BllComLynxClient uploader = new BllComLynxClient();
-            uploader.ProgressChanged += OnProgressChanged;
+            BllComLynxClient client = new BllComLynxClient();
+
             byte[] bytes = File.ReadAllBytes(input.FullName);
-            using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
-            {
-                uploader.UploadComFile(portName, bytes, baudRate);
-                progressBar.Tick(100, $"Upload completed");
-            }
-        }
+            IAnsiConsole console = (IAnsiConsole)context.BindingContext.GetService(typeof(IAnsiConsole));
+            console.Progress()
+                .Columns([
+                    new TaskDescriptionColumn(),    // Task description
+                    new ProgressBarColumn(),        // Progress bar
+                    new PercentageColumn(),         // Percentage
+                    new RemainingTimeColumn()      // Remaining time
+                ])
+                .Start(progress =>
+                {
+                    // Define tasks
+                    var task = progress.AddTask("[green]Uploading[/]");
+                    client.ProgressChanged += (sender, e) =>
+                    {
+                        task.Value(e.ProgressPercentage);
 
-        private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            progressBar.Tick(e.ProgressPercentage, $"Sent {e.UserState} bytes");
+                        // Check whether output is piped
+                        if (!context.Console.IsOutputRedirected)
+                            progress.Refresh();
+                    };
+
+                    client.UploadComFile(portName, bytes, baudRate, context.GetCancellationToken());
+                });
         }
     }
 }

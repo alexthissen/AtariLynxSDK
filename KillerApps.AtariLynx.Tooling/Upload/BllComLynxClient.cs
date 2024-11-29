@@ -24,10 +24,10 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 		private int totalBytes = 0;
 		private int bytesRead = 0;
 		private byte[] data;
-		
+
 		public event ProgressChangedEventHandler ProgressChanged;
 
-		public void UploadComFile(string portName, byte[] file, int baudRate = 62500)
+		public void UploadComFile(string portName, byte[] file, int baudRate = 62500, CancellationToken token = default)
 		{
 			ComFileHeader header = ComFileHeader.FromBytes(file);
 			//if (!header.Verify())
@@ -35,8 +35,8 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			//	Console.WriteLine("Invalid Lynx Com file");
 			//}
 
-			UploadCore(portName, header, file, ComFileHeader.HEADER_SIZE, 
-				file.Length - ComFileHeader.HEADER_SIZE, baudRate);
+			UploadCore(portName, header, file, ComFileHeader.HEADER_SIZE,
+				file.Length - ComFileHeader.HEADER_SIZE, baudRate, token);
 		}
 
 		public void ResetProgram(string portName, int baudRate = 62500)
@@ -49,7 +49,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 				port.Handshake = Handshake.None;
 				if (!port.TryOpen()) return;
 
-				// Write command 
+				// Write command
 				byte[] commandBytes = message.ToBytes();
 				port.Write(commandBytes, 0, commandBytes.Length);
 
@@ -72,7 +72,7 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 
 				if (!port.TryOpen()) return null;
 
-				// Write message to  
+				// Write message to port
 				try
 				{
 					port.Write(messageBytes, 0, messageBytes.Length);
@@ -80,10 +80,12 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 					// Read back same bytes because RX and TX are connected
 					port.Read(messageBytes, 0, messageBytes.Length);
 
-					// Now Lynx should send back palette of 32 bytes and video memory 
+					// Now Lynx should send back palette of 32 bytes and video memory
 					while (totalBytes < data.Length) // or timeout
 					{
 						totalBytes += port.Read(data, totalBytes, Math.Min(data.Length - totalBytes, READ_CHUNKSIZE));
+						int percentage = (totalBytes * 100) / data.Length;
+						ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, bytesRead));
 					}
 				}
 				catch (TimeoutException)
@@ -106,12 +108,13 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			bytesRead = port.Read(buffer, 0, 256);
 			Array.Copy(buffer, 0, data, totalBytes, Math.Min(bytesRead, data.Length - totalBytes));
 			totalBytes += bytesRead;
-			
+
 			int percentage = (totalBytes * 100) / data.Length;
 			ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(percentage, bytesRead));
 		}
 
-		protected void UploadCore(string portName, ComFileHeader header, byte[] program, int offset, int count, int baudRate)
+		protected void UploadCore(string portName, ComFileHeader header, byte[] program,
+			int offset, int count, int baudRate, CancellationToken token)
         {
 			UploadDebugMessage message = new UploadDebugMessage(header.LoadAddress, (ushort)(header.ObjectSize));
 
@@ -119,15 +122,15 @@ namespace KillerApps.AtariLynx.Tooling.ComLynx
 			{
 				port.WriteTimeout = WRITE_TIMEOUT;
 				port.Handshake = Handshake.None;
-				
+
 				if (!port.TryOpen()) return;
-				
-				// Write command 
+
+				// Write command
 				byte[] messageBytes = message.ToBytes();
 				port.Write(messageBytes, 0, messageBytes.Length);
 
 				int bytesSent = 0;
-				while (bytesSent < header.ObjectSize)
+				while (bytesSent < header.ObjectSize && !token.IsCancellationRequested)
 				{
 					// Send single chunk
 					int chunkSize = Math.Min(header.ObjectSize - bytesSent, WRITE_CHUNKSIZE);

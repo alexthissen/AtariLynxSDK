@@ -22,8 +22,8 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
 
         private void BllResetHandler(string portName, int baudRate)
         {
-            BllComLynxClient uploader = new BllComLynxClient();
-            uploader.ResetProgram(portName, baudRate);
+            BllComLynxClient client = new BllComLynxClient();
+            client.ResetProgram(portName, baudRate);
         }
     }
 }

@@ -1,17 +1,11 @@
 ﻿using KillerApps.AtariLynx.Tooling.ComLynx;
 using KillerApps.AtariLynx.Tooling.Conversion;
-using Kurukuru;
-using ShellProgressBar;
-using System;
-using System.Collections.Generic;
+using Spectre.Console;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Text;
-using System.Threading;
 
 namespace KillerApps.AtariLynx.CommandLine.Bll
 {
@@ -19,41 +13,50 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
     {
         private const int DEFAULT_BAUDRATE = 9600;
 
-        private ProgressBar progressBar = null;
-
         public BllScreenshotCommand() : base("screenshot", "Request screenshot") {
             this.AddSerialPortOptions(DEFAULT_BAUDRATE);
-            Option<FileInfo> outputFileOption = new Option<FileInfo>(new string[] { "--output", "-o" });
+            Option<FileInfo> outputFileOption = new Option<FileInfo>([ "--output", "-o" ]);
             this.AddOption(outputFileOption);
-            this.Handler = CommandHandler.Create<string, int, FileInfo>(BllScreenshotHandler);
+            this.Handler = CommandHandler.Create<string, int, FileInfo, InvocationContext>(BllScreenshotHandler);
         }
 
-        private void BllScreenshotHandler(string portName, int baudRate, FileInfo output)
+        private void BllScreenshotHandler(string portName, int baudRate, FileInfo output, InvocationContext context)
         {
             BllComLynxClient client = new BllComLynxClient();
-            client.ProgressChanged += OnProgressChanged;
-            byte[] screenshotData;
+            byte[] screenshotData = null;
 
-            using (progressBar = new ProgressBar(100, "Initializing"))
-            {
-                screenshotData = client.TakeScreenshot(portName, baudRate);
-                if (screenshotData == null)
+            IAnsiConsole console = (IAnsiConsole)context.BindingContext.GetService(typeof(IAnsiConsole));
+            console.Progress()
+                .Columns([
+                    new TaskDescriptionColumn(),    // Task description
+                    new ProgressBarColumn(),        // Progress bar
+                    new PercentageColumn(),         // Percentage
+                    new RemainingTimeColumn()      // Remaining time
+                ])
+                .Start(progress =>
                 {
-                    throw new CommandException("Screenshot data not received");
-                }
+                    // Define tasks
+                    var task = progress.AddTask("[green]Receiving[/]");
+                    client.ProgressChanged += (sender, e) =>
+                    {
+                        task.Value(e.ProgressPercentage);
+
+                        // Check whether output is piped
+                        if (!context.Console.IsOutputRedirected)
+                            progress.Refresh();
+                    };
+
+                    screenshotData = client.TakeScreenshot(portName, baudRate);
+                });
+            if (screenshotData == null)
+            {
+                throw new CommandException("Screenshot data not received");
             }
 
-            Kurukuru.Spinner.Start("Converting image...", spinner => {
-                BitmapConverter conv = new BitmapConverter();
+            BitmapConverter conv = new BitmapConverter();
                 Bitmap bitmap = conv.ConvertToBitmap(screenshotData);
                 bitmap.Save(output.FullName);
-                spinner.Succeed("Converting image... Done");
-            });
-        }
-
-        private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            progressBar.Tick(e.ProgressPercentage, $"Received {e.UserState} bytes");
+                console.MarkupLine("Converting image... Done");
         }
     }
 }

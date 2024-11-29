@@ -4,13 +4,13 @@ using KillerApps.AtariLynx.CommandLine.Flashcard;
 using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Reflection;
 using System.Threading.Tasks;
+using Spectre.Console;
 
 namespace KillerApps.AtariLynx.CommandLine
 {
@@ -41,9 +41,13 @@ namespace KillerApps.AtariLynx.CommandLine
                 .UseTypoCorrections()
                 .UseParseErrorReporting()
                 // Removed from beta1
-                //.ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated) 
+                //.ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
                 .CancelOnProcessTermination()
-                .UseExceptionHandler(HandleException);
+                .UseExceptionHandler(HandleException)
+                .AddMiddleware(async (context, next) => {
+                    context.BindingContext.AddService<IAnsiConsole>(provider => AnsiConsole.Console);
+                    await next(context);
+                }, MiddlewareOrder.Configuration);
 
             //builder.UseDefaults();
             //builder.UseMiddleware(DefaultOptionsMiddleware);
