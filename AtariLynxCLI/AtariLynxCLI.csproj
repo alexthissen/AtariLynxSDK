@@ -36,4 +36,16 @@
     <ProjectReference Include="..\KillerApps.AtariLynx.Tooling\KillerApps.AtariLynx.Tooling.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="fire.o">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="loderunner.o">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="plasmosis.o">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

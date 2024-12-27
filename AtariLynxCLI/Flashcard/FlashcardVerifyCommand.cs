@@ -17,7 +17,6 @@ namespace KillerApps.AtariLynx.CommandLine.Flashcard
     public class FlashcardVerifyCommand : Command
     {
         private const int DEFAULT_BAUDRATE = 115200;
-        private const string OK_TERMINATOR = "= OK ===========================================================================\r\n";
         private ProgressBar progressBar = null;
 
         public FlashcardVerifyCommand() : base("verify", "Verify ROM on Flashcard")

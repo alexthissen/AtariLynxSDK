@@ -2,7 +2,7 @@
   "profiles": {
     "AtariLynxCLI": {
       "commandName": "Project",
-      "commandLineArgs": "bll upload -p COM8 -b 9600 -i .\\fire.o"
+      "commandLineArgs": "bll upload -p COM3 -b 1000000 -i .\\loderunner.o"
     }
   }
 }

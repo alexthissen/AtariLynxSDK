@@ -1,17 +1,11 @@
-﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
-using KillerApps.AtariLynx.Tooling.ComLynx;
-using KillerApps.AtariLynx.Tooling.Flashcard;
+﻿using KillerApps.AtariLynx.Tooling.Flashcard;
 using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.Parsing;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace KillerApps.AtariLynx.CommandLine.Flashcard
 {
