@@ -8,10 +8,7 @@ namespace KillerApps.AtariLynx.Debugger
 {
 	public class WriteMemoryRequest : DebugRequest
 	{
-		public WriteMemoryRequest() 
-		{
-				
-		}
+		public WriteMemoryRequest() { }
 
 		public WriteMemoryRequest(ushort address, byte length, byte[] memory)
 		{
@@ -53,11 +50,6 @@ namespace KillerApps.AtariLynx.Debugger
 				if (Queue.Count < 4) return 4;
 				return 4 + (Length == 0 ? 256 : Length);
 			}
-		}
-
-		public override byte[] ToByteArray()
-		{
-			return base.ToByteArray();
 		}
 	}
 }

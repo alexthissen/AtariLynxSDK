@@ -8,7 +8,6 @@ namespace KillerApps.AtariLynx.Debugger
 {
 	public class DebugRequest
 	{
-		//protected byte[] data;
 		public List<byte> Queue { get; internal set; }
 
 		public DebugRequest(DebugCommand command)

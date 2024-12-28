@@ -11,6 +11,7 @@ using System.CommandLine.Parsing;
 using System.Reflection;
 using System.Threading.Tasks;
 using Spectre.Console;
+using KillerApps.AtariLynx.CommandLine.Debugger;
 
 namespace KillerApps.AtariLynx.CommandLine
 {
@@ -22,6 +23,7 @@ namespace KillerApps.AtariLynx.CommandLine
             rootCommand.AddCommand(new ComLynxCommand());
             rootCommand.AddCommand(new BllCommand());
             rootCommand.AddCommand(new FlashcardCommand());
+            rootCommand.AddCommand(new DebugCommand());
 
             // Show command-line help unless a subcommand was used.
             rootCommand.Handler = CommandHandler.Create(() => rootCommand.Invoke("-h"));

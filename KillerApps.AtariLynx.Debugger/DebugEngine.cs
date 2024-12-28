@@ -27,9 +27,11 @@ namespace KillerApps.AtariLynx.Debugger
 		{
 			Logger.Current.Info(String.Format("Attaching to port {0}.", portName));
 			port.DebugResponseReceived += OnDebugResponseReceived;
+			attached = true;
+			
 			port.Start(portName, baudrate, parity);
 			Logger.Current.Info(String.Format("Listening at {0} baud.", baudrate));
-			attached = true;
+
 			breakMode = false;
 		}
 
@@ -73,6 +75,7 @@ namespace KillerApps.AtariLynx.Debugger
 			// And off we go
 			SendAndWait(new ContinueRequest());
 			breakMode = false;
+			Logger.Current.Info("Continuing...");
 		}
 
 		public byte[] InspectMemory(ushort startAddress, ushort size)
@@ -82,7 +85,7 @@ namespace KillerApps.AtariLynx.Debugger
 			while (size > 0)
 			{
 				byte length = (byte)(size < 256 ? size : 0);
-				ReadMemoryResponse response = SendAndReceive<ReadMemoryResponse>(new ReadMemoryRequest(startAddress, length), 2000);
+				ReadMemoryResponse response = SendAndReceive<ReadMemoryResponse>(new ReadMemoryRequest(startAddress, length), 20000);
 				ushort bytesRead = (ushort)response.Memory.Length;
 				memory.AddRange(response.Memory);
 
@@ -95,6 +98,8 @@ namespace KillerApps.AtariLynx.Debugger
 
 		void OnDebugResponseReceived(object sender, DebugResponseReceivedEventArgs e)
 		{
+			Logger.Current.Info(e.Response.ToString());
+
 			if (IsRunning)
 			{
 				TryEnterBreakmode(e.Response);
@@ -103,17 +108,20 @@ namespace KillerApps.AtariLynx.Debugger
 
 			// Store last response in queue
 			responses.Enqueue(e.Response);
+			Logger.Current.Info($"Responses: {responses.Count}");
 			signal.Set();
 		}
 
 		private void TryEnterBreakmode(IDebugResponse response)
 		{
-			SendRegistersResponse registersResponse = response as SendRegistersResponse;
-			if (registersResponse == null) return;
+			BreakResponse breakResponse = response as BreakResponse;
+			if (breakResponse == null) return;
 
-			currentRegisters = registersResponse.ToRegisters();
+			currentRegisters = breakResponse.Registers;
 			breakMode = true;
-		}
+			
+			Logger.Current.Info("Break mode entered.");
+        }
 
 		internal T SendAndReceive<T>(DebugRequest request, int timeout = 1000) where T : class, IDebugResponse
 		{
@@ -121,7 +129,7 @@ namespace KillerApps.AtariLynx.Debugger
 			port.SendRequest(request);
 			if (!signal.WaitOne(timeout))
 			{
-				Logger.Current.Warning("Response not received in time.");
+				Logger.Current.Warning("Response not received in time (SendAndReceive).");
 				return null;
 			}
 
@@ -138,7 +146,7 @@ namespace KillerApps.AtariLynx.Debugger
 			port.SendRequest(request);
 			if (!signal.WaitOne(timeout))
 			{
-				Logger.Current.Warning("Response not received in time.");
+				Logger.Current.Warning("Response not received in time (SendAndWait).");
 				return false;
 			}
 
@@ -161,7 +169,7 @@ namespace KillerApps.AtariLynx.Debugger
 			return true;
 		}
 
-		void EnsureAttached()
+		private void EnsureAttached()
 		{
 			if (!attached) throw new InvalidOperationException("Debugger is not attached to debuggee.");
 		}

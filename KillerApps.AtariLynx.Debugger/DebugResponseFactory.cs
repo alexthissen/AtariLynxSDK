@@ -19,6 +19,9 @@ namespace KillerApps.AtariLynx.Debugger
 			IDebugResponse response = null;
 			switch (command)
 			{
+				case DebugCommand.Break:
+                    response = new BreakResponse();
+                    break;
 				case DebugCommand.Continue:
 					response = new DebugResponse<ContinueRequest>();
 					break;
@@ -26,16 +29,13 @@ namespace KillerApps.AtariLynx.Debugger
 					response = new DebugResponse<ReceiveRegistersRequest>();
 					break;
 				case DebugCommand.WriteMemory:
-					return null;
-				//response = new DebugResponse<WriteMemoryRequest>();
+					response = new DebugResponse<WriteMemoryRequest>();
+					break;
 				case DebugCommand.ReadMemory:
 					response = new ReadMemoryResponse();
 					break;
 				case DebugCommand.SendRegisters:
 					response = new SendRegistersResponse();
-					break;
-				case DebugCommand.DownloadScreen:
-					response = new DownloadScreenResponse();
 					break;
 				default:
 					return null;
