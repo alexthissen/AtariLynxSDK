@@ -19,15 +19,14 @@ namespace KillerApps.AtariLynx.CommandLine.Bll
 
 //        private ProgressBar progressBar = null;
 
-        public BllUploadCommand() : base("upload", "Upload command")
+        public BllUploadCommand() : base("upload", "Upload .o file to Atari Lynx")
         {
             this.AddSerialPortOptions(DEFAULT_BAUDRATE);
 
-            Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
-            uploadFileOption.AddAlias("-i");
-            uploadFileOption.Description = "File to upload";
-            uploadFileOption.ExistingOnly().IsRequired = true;
-            this.AddOption(uploadFileOption);
+            Argument<FileInfo> uploadFileArgument = new Argument<FileInfo>("--input");
+            uploadFileArgument.Description = "File to upload";
+            uploadFileArgument.ExistingOnly();
+            this.AddArgument(uploadFileArgument);
             this.Handler = CommandHandler.Create<string, int, FileInfo, InvocationContext>(BllUploadHandler);
         }
 
