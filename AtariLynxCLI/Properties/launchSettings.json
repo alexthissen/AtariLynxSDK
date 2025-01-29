@@ -2,7 +2,7 @@
   "profiles": {
     "AtariLynxCLI": {
       "commandName": "Project",
-      "commandLineArgs": "debug -p COM5 -b 62500"
+      "commandLineArgs": "debug -p COM4 -b 62500"
     }
   }
 }

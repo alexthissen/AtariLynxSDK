@@ -137,7 +137,8 @@ namespace KillerApps.AtariLynx.Debugger
 			// TODO: Implement equality operator for each request type
 			//			if (lastResponse.Echo != request) return null;
 			IDebugResponse response = responses.Dequeue();
-			return response as T;
+			Logger.Current.Info($"Dequeued {response} #{responses.Count}");
+            return response as T;
 		}
 
 		internal bool SendAndWait(DebugRequest request, int timeout = 1000)
@@ -154,7 +155,8 @@ namespace KillerApps.AtariLynx.Debugger
 			while (responses.Count > 0)
 			{
 				IDebugResponse response = responses.Dequeue();
-				if (VerifyResponse(response, request)) return true;
+                Logger.Current.Info($"Dequeued {response}");
+                if (VerifyResponse(response, request)) return true;
 			}
 
 			return false;
