@@ -34,6 +34,8 @@ namespace KillerApps.AtariLynx.CommandLine.Debugger
                 if (!engine.IsRunning)
                 {
                     byte[] memory = engine.InspectMemory(0x0200, 0x0400);
+                    System.Console.WriteLine("Enter to continue");
+                    System.Console.ReadLine();
                     engine.Continue();
                 }
             }            
