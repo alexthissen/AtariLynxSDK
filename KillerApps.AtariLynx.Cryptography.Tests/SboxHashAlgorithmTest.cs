@@ -7,7 +7,7 @@ namespace KillerApps.AtariLynx.Cryptography.Tests
 {
 	[TestClass]
 	public class SboxHashAlgorithmTest
-	{
+	{    
 		private TestContext testContextInstance;
 		public const string RomImage128KFilePath = @"Quadromania.bin";
 		public const string RomImage256KFilePath = @"APB.bin";
@@ -40,7 +40,7 @@ namespace KillerApps.AtariLynx.Cryptography.Tests
         public void ComputeHashFor128KImageShouldReturnCorrectValue()
         {
             FileStream romImageStream = new FileStream(
-                Path.Combine(TestContext.TestDeploymentDir, RomImage128KFilePath), FileMode.Open, FileAccess.Read);
+                Path.Combine(TestContext.DeploymentDirectory, RomImage128KFilePath), FileMode.Open, FileAccess.Read);
             int romLength = (int)romImageStream.Length;
             byte[] image = new byte[romLength];
             int bytesRead = romImageStream.Read(image, 0, romLength);

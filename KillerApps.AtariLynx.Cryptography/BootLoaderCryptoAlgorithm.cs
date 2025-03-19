@@ -9,7 +9,7 @@ namespace KillerApps.AtariLynx.Cryptography
 	public class BootLoaderCryptoAlgorithm
 	{
 		public const int EncryptedBlockSize = 51;
-		public const int DecryptedBlockSize = 50;
+		public const int UnencryptedBlockSize = 50;
 
 		static BootLoaderCryptoAlgorithm()
 		{
@@ -34,11 +34,11 @@ namespace KillerApps.AtariLynx.Cryptography
 			// obfuscated			0x9c, 0x5d, 0x06, 0xaa, 0x5a, 0x8a, 
 			byte accumulator = 0;
 			for (int i = 0; i < data.Length; i++)
-		  {
+			{
 				byte value = data[i];
 				data[i] -= accumulator;
 				accumulator = value;
-		  }
+			}
 		}
 
 		internal void Deobfuscate(byte[] data)
@@ -55,8 +55,8 @@ namespace KillerApps.AtariLynx.Cryptography
 		public byte[] Encrypt(byte[] block)
 		{
 			BigInteger data = new BigInteger(block);
-			BigInteger decryptedData = BigInteger.ModPow(data, privateExponent, modulus);
-			return decryptedData.ToByteArray();
+			BigInteger encryptedData = BigInteger.ModPow(data, privateExponent, modulus);
+			return encryptedData.ToByteArray();
 		}
 	}
 }

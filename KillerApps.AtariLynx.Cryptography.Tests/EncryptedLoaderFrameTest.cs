@@ -57,7 +57,7 @@ namespace KillerApps.AtariLynx.Cryptography.Tests
 		//
 		#endregion
 
-		byte[] originalFrameData = new byte[3 * BootLoaderCryptoAlgorithm.DecryptedBlockSize]
+		byte[] originalFrameData = new byte[3 * BootLoaderCryptoAlgorithm.UnencryptedBlockSize]
 		{
 			0x80, 0x00, 0x20, 0x4f, 0x02, 0x64, 0x05, 0xe6, 0x06, 0xa9, 0x08, 0x8d, 0x8b, 0xfd, 0x4c, 0x4a,
 			0xfe, 0xa0, 0x06, 0x20, 0x00, 0x03, 0xa2, 0x0b, 0xbd, 0x6d, 0x02, 0xbc, 0x76, 0x02, 0x99, 0x00,
@@ -97,7 +97,7 @@ namespace KillerApps.AtariLynx.Cryptography.Tests
 
 		byte[] originalSingleBlockFrameData = new byte[50]
 			{
-			  0x9c, 0xf9, 0xff, 0xa9, 0x03, 0x8d, 0x8a, 0xfd, 0xa9, 0x04, 0x8d, 0x8c, 0xfd, 0xa9, 0x08, 0x8d, 
+				0x9c, 0xf9, 0xff, 0xa9, 0x03, 0x8d, 0x8a, 0xfd, 0xa9, 0x04, 0x8d, 0x8c, 0xfd, 0xa9, 0x08, 0x8d, 
 				0x8b, 0xfd, 0xa2, 0x00, 0xad, 0xb2, 0xfc, 0x9d, 0x00, 0x03, 0xe8, 0xd0, 0xf7, 0x4c, 0x00, 0x03, 
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00
@@ -123,7 +123,7 @@ namespace KillerApps.AtariLynx.Cryptography.Tests
 
 			byte[] data = frame.Decrypt();
 
-			Assert.AreEqual<int>(BootLoaderCryptoAlgorithm.DecryptedBlockSize, data.Length, "Decrypted data should be of correct length.");
+			Assert.AreEqual<int>(BootLoaderCryptoAlgorithm.UnencryptedBlockSize, data.Length, "Decrypted data should be of correct length.");
 			CollectionAssert.AreEqual(originalSingleBlockFrameData, data);
 		}
 
@@ -135,7 +135,7 @@ namespace KillerApps.AtariLynx.Cryptography.Tests
 
 			byte[] data = frame.Decrypt();
 
-			Assert.AreEqual<int>(frame.BlockCount * BootLoaderCryptoAlgorithm.DecryptedBlockSize, data.Length, "Decrypted data should be of correct length.");
+			Assert.AreEqual<int>(frame.BlockCount * BootLoaderCryptoAlgorithm.UnencryptedBlockSize, data.Length, "Decrypted data should be of correct length.");
 			CollectionAssert.AreEqual(originalFrameData, data, "Decrypted data should match known decryption values");
 		}
 

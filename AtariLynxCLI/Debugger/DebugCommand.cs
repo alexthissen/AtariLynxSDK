@@ -1,10 +1,6 @@
 ﻿using KillerApps.AtariLynx.Debugger;
-using KillerApps.AtariLynx.Tooling.ComLynx;
-using ShellProgressBar;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.ComponentModel;
-using System.IO;
 using System.IO.Ports;
 using System.Threading;
 
@@ -14,8 +10,6 @@ namespace KillerApps.AtariLynx.CommandLine.Debugger
     {
         private const int DEFAULT_RECEIVESIZE = 65536 * 8;
         private const int DEFAULT_BAUDRATE = 62500;
-
-        private ProgressBar progressBar = null;
 
         public DebugCommand() : base("debug", "Debug related command")
         {

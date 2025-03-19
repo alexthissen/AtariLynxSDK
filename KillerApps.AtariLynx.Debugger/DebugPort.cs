@@ -33,7 +33,8 @@ namespace KillerApps.AtariLynx.Debugger
 
 			var observablePort = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>(
 				ev => serialPort.DataReceived += ev,
-				ev => serialPort.DataReceived -= ev).Select(args =>
+				ev => serialPort.DataReceived -= ev)
+				.Select(args =>
 				{
 					int bytesToRead = serialPort.BytesToRead;
 					byte[] buffer = new byte[bytesToRead];
@@ -82,7 +83,7 @@ namespace KillerApps.AtariLynx.Debugger
 						}
 					}
 				});
-				return Disposable.Empty;
+				return subscription;
 			}
 			);
 
