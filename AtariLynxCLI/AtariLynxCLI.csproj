@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KillerApps.AtariLynx.Debugger\KillerApps.AtariLynx.Debugger.csproj" />
     <ProjectReference Include="..\KillerApps.AtariLynx.Tooling\KillerApps.AtariLynx.Tooling.csproj" />
   </ItemGroup>
 

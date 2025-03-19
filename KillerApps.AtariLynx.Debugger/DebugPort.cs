@@ -33,7 +33,8 @@ namespace KillerApps.AtariLynx.Debugger
 
 			var observablePort = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>(
 				ev => serialPort.DataReceived += ev,
-				ev => serialPort.DataReceived -= ev).Select(args =>
+				ev => serialPort.DataReceived -= ev)
+				.Select(args =>
 				{
 					int bytesToRead = serialPort.BytesToRead;
 					byte[] buffer = new byte[bytesToRead];
@@ -70,19 +71,19 @@ namespace KillerApps.AtariLynx.Debugger
 							int availableBytes = Math.Min(bytesRead - index, response.RemainingBytes);
 							response.AddBytes(buffer.Skip(index).Take(availableBytes));
 							index += availableBytes;
+						}
 
-							// Even though correct number of bytes might have been added, response could still be 
-							// incomplete because length of data to receive has changed (when length byte is available)
-							if (response.IsComplete)
-							{
-								// Current response is ready, so return to observers
-								observer.OnNext(response);
-								response = null;
-							}
+						// Even though correct number of bytes might have been added, response could still be 
+						// incomplete because length of data to receive has changed (when length byte is available)
+						if (response != null && response.IsComplete)
+						{
+							// Current response is ready, so return to observers
+							observer.OnNext(response);
+							response = null;
 						}
 					}
 				});
-				return Disposable.Empty;
+				return subscription;
 			}
 			);
 

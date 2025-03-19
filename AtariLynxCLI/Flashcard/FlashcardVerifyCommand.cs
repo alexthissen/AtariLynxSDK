@@ -1,64 +1,57 @@
-﻿using KillerApps.AtariLynx.CommandLine.ComLynx;
-using KillerApps.AtariLynx.Tooling.ComLynx;
-using KillerApps.AtariLynx.Tooling.Flashcard;
+﻿using KillerApps.AtariLynx.Tooling.Flashcard;
 using ShellProgressBar;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.IO;
-using System.Text;
 
-namespace KillerApps.AtariLynx.CommandLine.Flashcard
+namespace KillerApps.AtariLynx.CommandLine.Flashcard;
+
+public class FlashcardVerifyCommand : Command
 {
-    public class FlashcardVerifyCommand : Command
+    private const int DEFAULT_BAUDRATE = 115200;
+    private ProgressBar progressBar = null;
+
+    public FlashcardVerifyCommand() : base("verify", "Verify ROM on Flashcard")
     {
-        private const int DEFAULT_BAUDRATE = 115200;
-        private ProgressBar progressBar = null;
+        this.AddSerialPortOptions(DEFAULT_BAUDRATE);
 
-        public FlashcardVerifyCommand() : base("verify", "Verify ROM on Flashcard")
+        Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
+        uploadFileOption.AddAlias("-i");
+        uploadFileOption.ExistingOnly().IsRequired = true;
+        this.AddOption(uploadFileOption);
+        this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FileInfo, IConsole>(FlashcardVerifyHandler);
+    }
+
+    private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
+    {
+        FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
+        progressBar.Tick(e.ProgressPercentage, $"Verifying {status.BytesWritten}/{status.TotalBytes} bytes");
+    }
+
+    private void FlashcardVerifyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FileInfo input, IConsole console)
+    {
+        string response = String.Empty;
+        byte[] content = File.ReadAllBytes(input.FullName);
+
+        using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
         {
-            this.AddSerialPortOptions(DEFAULT_BAUDRATE);
+            Progress<string> progress = new Progress<string>(message => {
+                if (global.Verbose) progressBar.WriteLine(message);
+            });
+            FlashcardClient proxy = new FlashcardClient(progress);
 
-            Option<FileInfo> uploadFileOption = new Option<FileInfo>("--input");
-            uploadFileOption.AddAlias("-i");
-            uploadFileOption.ExistingOnly().IsRequired = true;
-            this.AddOption(uploadFileOption);
-            this.Handler = CommandHandler.Create<GlobalOptions, SerialPortOptions, FileInfo, IConsole>(FlashcardVerifyHandler);
+            // Add event handlers
+            proxy.ProgressChanged += OnProgressChanged;
+
+            // Actual writing to card
+            response = proxy.VerifyRomFile(serialPortOptions.PortName, serialPortOptions.Baudrate, content);
         }
 
-        private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
+        if (global.Verbose)
         {
-            FlashcardSendStatus status = (FlashcardSendStatus)e.UserState;
-            progressBar.Tick(e.ProgressPercentage, $"Verifying {status.BytesWritten}/{status.TotalBytes} bytes");
-        }
-
-        private void FlashcardVerifyHandler(GlobalOptions global, SerialPortOptions serialPortOptions, FileInfo input, IConsole console)
-        {
-            string response = String.Empty;
-            byte[] content = File.ReadAllBytes(input.FullName);
-
-            using (progressBar = new ProgressBar(100, "Initializing", ProgressBarStyling.Options))
-            {
-                Progress<string> progress = new Progress<string>(message => {
-                    if (global.Verbose) progressBar.WriteLine(message);
-                });
-                FlashcardClient proxy = new FlashcardClient(progress);
-
-                // Add event handlers
-                proxy.ProgressChanged += OnProgressChanged;
-
-                // Actual writing to card
-                response = proxy.VerifyRomFile(serialPortOptions.PortName, serialPortOptions.Baudrate, content);
-            }
-
-            if (global.Verbose)
-            {
-                console.Out.Write($"Response from flashcard:\r\n{response}");
-            }
+            console.Out.Write($"Response from flashcard:\r\n{response}");
         }
     }
 }

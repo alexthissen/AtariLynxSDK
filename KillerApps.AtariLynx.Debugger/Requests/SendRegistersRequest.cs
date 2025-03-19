@@ -9,6 +9,6 @@ namespace KillerApps.AtariLynx.Debugger
 	public class SendRegistersRequest : DebugRequest
 	{
 		public SendRegistersRequest(): base(DebugCommand.SendRegisters){ }
-		public override int ResponseLength { get { return 7; } }
+		public override int ResponseLength { get { return 8; } }
 	}
 }

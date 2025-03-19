@@ -13,6 +13,6 @@ namespace KillerApps.AtariLynx.Debugger
 		WriteMemory = 0x84,
 		ReadMemory = 0x85,
 		SendRegisters = 0x86,
-		DownloadScreen = 0x87,
+		Break = 0x8f
 	}
 }
